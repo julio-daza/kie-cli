@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7ddcff">
+        <animate attributeName="stop-color" values="#7ddcff;#00a8ff;#7ddcff" dur="9s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="0.45" stop-color="#00a8ff">
+        <animate attributeName="stop-color" values="#00a8ff;#2f6bff;#00a8ff" dur="9s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="1" stop-color="#1e40d8">
+        <animate attributeName="stop-color" values="#1e40d8;#7c3aed;#1e40d8" dur="9s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.3" r="0.7">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.14" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="600" fill="url(#g)"/>
+  <rect width="1600" height="600" fill="url(#grid)"/>
+  <rect width="1600" height="600" fill="url(#glow)"/>
+</svg>
