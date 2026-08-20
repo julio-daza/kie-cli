@@ -1,0 +1,17 @@
+# dependencies / build
+node_modules/
+dist/
+*.tgz
+
+# local state — never commit keys, ledgers or generated media
+.env
+.env.*
+!.env.example
+kie-media/
+*.key
+ledger.jsonl
+
+# editors / OS
+.DS_Store
+.vscode/
+.idea/
