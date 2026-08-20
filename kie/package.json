@@ -26,5 +26,30 @@
     "@types/node": "^22.10.0",
     "typescript": "^5.7.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/julio-daza/kie-cli.git",
+    "directory": "kie"
+  },
+  "homepage": "https://github.com/julio-daza/kie-cli#readme",
+  "bugs": {
+    "url": "https://github.com/julio-daza/kie-cli/issues"
+  },
+  "author": "Julio Daza",
+  "keywords": [
+    "kie",
+    "kie.ai",
+    "cli",
+    "ai-agents",
+    "claude-code",
+    "image-generation",
+    "video-generation",
+    "nano-banana",
+    "kling",
+    "veo3"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

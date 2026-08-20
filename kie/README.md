@@ -14,8 +14,8 @@ single run can spend.
 ## Install
 
 ```bash
-git clone https://github.com/<you>/MyCLIs.git
-cd MyCLIs/kie
+git clone https://github.com/julio-daza/kie-cli.git
+cd kie-cli/kie
 npm install        # dev deps only (typescript)
 npm run build
 npm link           # exposes `kie` on your PATH

@@ -1,8 +1,11 @@
-# MyCLIs
+# kie-cli
+
+[![CI](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Small, dependency-free command-line tools built so AI coding agents can use paid
 third-party services **without** being handed the keys to the kingdom. Each CLI
-ships with a matching agent skill.
+ships with a matching agent skill. Today the repo holds one: `kie`.
 
 | CLI | What it does | Skill |
 |-----|--------------|-------|
@@ -15,6 +18,20 @@ ships with a matching agent skill.
 3. **Talk only to the vendor's official hosts.** No telemetry, no proxies, no default webhooks.
 4. **Spend is capped before the request leaves the machine**, and the real cost is written to a local ledger afterwards.
 5. **JSON on stdout, humans on stderr, meaningful exit codes** — so agents can script it safely.
+
+## Repository layout
+
+- [`kie/`](kie/) — the CLI (TypeScript, zero runtime dependencies) and its tests.
+- [`kie/skill/kie-media/`](kie/skill/kie-media/) — the agent skill.
+- [`landing/`](landing/) — the project website (Astro, EN/ES).
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).
+
+## Disclaimer
+
+This is an independent, community project. It is **not affiliated with, endorsed by, or
+supported by KIE.ai**. "KIE" and the KIE logo are trademarks of their respective owner and
+are used here only to identify the service the tool talks to.
 
 ## License
 
