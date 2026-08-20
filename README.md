@@ -23,7 +23,7 @@ ships with a matching agent skill. Today the repo holds one: `kie`.
 
 - [`kie/`](kie/) — the CLI (TypeScript, zero runtime dependencies) and its tests.
 - [`kie/skill/kie-media/`](kie/skill/kie-media/) — the agent skill.
-- [`landing/`](landing/) — the project website (Astro, EN/ES).
+- Website: [julio-daza/kie-landing](https://github.com/julio-daza/kie-landing) → https://kie-landing.pages.dev
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).
 

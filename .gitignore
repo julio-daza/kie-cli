@@ -16,3 +16,6 @@ ledger.jsonl
 .DS_Store
 .vscode/
 .idea/
+
+# the website lives in julio-daza/kie-landing; a leftover local copy is ignored
+/landing/

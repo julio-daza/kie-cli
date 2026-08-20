@@ -3,6 +3,11 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## Unreleased
+
+### Changed
+- The website moved to its own repository, [kie-landing](https://github.com/julio-daza/kie-landing).
+
 ## [0.2.0] — 2026-08-20
 
 ### Added
