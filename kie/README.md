@@ -9,7 +9,7 @@ single run can spend.
 - **Only talks to `api.kie.ai` and `kieai.redpandaai.co`** (KIE's official upload host). No telemetry, no proxy, and it **never sends a `callBackUrl`** — results are polled, not pushed anywhere.
 - **Spend guard before every request**: per-task cap, daily budget from a local ledger of *real* `creditsConsumed`, and balance check.
 - **Always downloads results** (KIE result URLs expire in ~24 h).
-- **JSON on stdout, messages on stderr, exit codes** agents can branch on.
+- **Two output modes**: pretty tables/panels when you run it in a terminal, strict **JSON on stdout** when piped or with `--json` — agents get a stable contract, humans get something readable.
 
 ## Install
 
@@ -77,6 +77,15 @@ Generation flags: `--prompt`, `--ref <url>` (repeatable), `--image`, `--end-imag
 `--resolution`, `--duration`, `--sound`, `--fast`, `--format`, `--set key=value` (raw model
 field, repeatable), `--out`, `--name`, `--no-wait`, `--timeout`, `--poll`, `--no-download`,
 `--max-credits`, `--dry-run`, `--quiet`.
+
+### Output modes
+
+| Situation | What you get |
+|---|---|
+| stdout is a terminal | KIE-branded banner on `help`, box-drawing tables (`models`, `ledger`), panels (`credits` with a budget meter, task results), live spinner while waiting |
+| stdout is a pipe / `--json` | Pretty-printed JSON on stdout, plain messages on stderr — what agents should use |
+| `--pretty` | Force the human view even when piped (e.g. `kie models --pretty | less -R`) |
+| `--no-color` or `NO_COLOR=1` | Same layout, no ANSI colors |
 
 ### Exit codes
 

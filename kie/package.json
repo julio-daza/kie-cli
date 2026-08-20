@@ -1,6 +1,6 @@
 {
   "name": "@myclis/kie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-dependency CLI for KIE.ai media generation (images & video), built for AI agents with hard spend guards.",
   "license": "MIT",
   "type": "module",

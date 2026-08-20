@@ -9,6 +9,7 @@ import { GENERATE_BOOLEANS, runGenerate } from "../src/commands/generate.js";
 import { DEFAULT_CONFIG } from "../src/config.js";
 import { readLedger } from "../src/ledger.js";
 import type { Output } from "../src/output.js";
+import { makeStyle } from "../src/ui.js";
 
 let dir: string;
 const saved = { ...process.env };
@@ -27,8 +28,12 @@ function capture(): Output & { stdout: unknown[]; stderr: string[] } {
   const stdout: unknown[] = [];
   const stderr: string[] = [];
   return {
+    mode: "json",
+    style: makeStyle(false),
     stdout,
     stderr,
+    success: (m) => stderr.push(m),
+    endProgress: () => {},
     json: (v) => stdout.push(v),
     info: (m) => stderr.push(m),
     warn: (m) => stderr.push("warning: " + m),

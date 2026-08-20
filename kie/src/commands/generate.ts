@@ -7,7 +7,7 @@ import { appendLedger, readLedger } from "../ledger.js";
 import type { Output } from "../output.js";
 import { waitForTask } from "./tasks.js";
 
-export const GENERATE_BOOLEANS = new Set(["sound", "fast", "dry-run", "wait", "no-wait", "json", "quiet"]);
+export const GENERATE_BOOLEANS = new Set(["sound", "fast", "dry-run", "wait", "no-wait", "json", "pretty", "quiet"]);
 
 export interface GenerateDeps {
   client: KieClient;
@@ -82,7 +82,7 @@ async function submit(built: BuiltRequest, kind: Kind | "raw", args: ParsedArgs,
   const request = built.family === "veo" ? built.input : { model: built.model, input: built.input };
 
   if (dryRun) {
-    output.json({ dryRun: true, family: built.family, endpoint: built.family === "veo" ? "/veo/generate" : "/jobs/createTask", request, estimate: built.estimate });
+    output.json({ dryRun: true, family: built.family, endpoint: built.family === "veo" ? "/veo/generate" : "/jobs/createTask", request, estimate: built.estimate }, { kind: "dry-run" });
     return 0;
   }
 
@@ -100,6 +100,7 @@ async function submit(built: BuiltRequest, kind: Kind | "raw", args: ParsedArgs,
     return 3;
   }
 
+  output.info(`Submitting ${built.model}${built.estimate !== null ? ` (≈${built.estimate} credits)` : maxCredits !== undefined ? ` (cap ${maxCredits} credits)` : ""}…`);
   const taskId = built.family === "veo" ? await client.veoGenerate(built.input) : await client.createTask(built.model, built.input);
 
   appendLedger({
@@ -114,8 +115,8 @@ async function submit(built: BuiltRequest, kind: Kind | "raw", args: ParsedArgs,
 
   const shouldWait = args.flags["no-wait"] ? false : true;
   if (!shouldWait) {
-    output.json({ taskId, model: built.model, family: built.family, estimate: built.estimate, state: "submitted" });
-    output.info(`Submitted. Check with: kie wait ${taskId}${built.family === "veo" ? " --family veo" : ""}`);
+    output.json({ taskId, model: built.model, family: built.family, estimate: built.estimate, state: "submitted" }, { kind: "submitted" });
+    output.success(`Submitted. Resume with: kie wait ${taskId}${built.family === "veo" ? " --family veo" : ""}`);
     return 0;
   }
 

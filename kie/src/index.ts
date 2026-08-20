@@ -6,11 +6,12 @@ import { GENERATE_BOOLEANS, runGenerate, runRaw } from "./commands/generate.js";
 import { runConfig, runCredits, runKey, runLedger, runModels, runUpload } from "./commands/misc.js";
 import { runStatus, runWait } from "./commands/tasks.js";
 import { redact, resolveKey } from "./keystore.js";
-import { out } from "./output.js";
+import { out, type Mode } from "./output.js";
+import { banner, makeStyle, colorsEnabled } from "./ui.js";
 
-const HELP = `kie — KIE.ai media generation for agents (images & video), zero dependencies.
+const VERSION = "0.2.0";
 
-Usage:
+const HELP = `Usage:
   kie key set|check|delete                     Store the API key (macOS Keychain / 0600 file)
   kie credits                                  Balance + today's spend vs daily budget
   kie models [--kind image|video]              Curated catalog (JSON)
@@ -31,26 +32,32 @@ Generation options:
   --max-credits <n>      Accept spending up to n credits on this task (required when no estimate)
   --dry-run              Print the exact request, send nothing
   --quiet                Suppress progress on stderr
+  --json                 Force machine output (default when stdout is not a terminal)
+  --pretty / --no-color  Force human output / disable colors (NO_COLOR is honoured too)
 
-Output contract: JSON on stdout, messages on stderr.
+Output contract: pretty tables in a terminal; JSON on stdout + messages on stderr when piped or with --json.
 Exit codes: 0 ok · 1 task failed · 2 usage · 3 blocked by spend guard · 4 timed out · 5 API/auth error
 `;
 
 async function main(argv: string[]): Promise<number> {
-  const args = parseArgs(argv, new Set([...GENERATE_BOOLEANS, "no-download", "help", "version"]));
+  const args = parseArgs(argv, new Set([...GENERATE_BOOLEANS, "no-download", "help", "version", "color", "no-color", "pretty"]));
   const command = args.positionals.shift();
+  const color = args.flags["no-color"] || args.flags.color === false ? false : undefined;
+  const mode: Mode | undefined = args.flags.json ? "json" : args.flags.pretty ? "pretty" : undefined;
   if (!command || command === "help" || args.flags.help) {
+    const pretty = mode === "pretty" || (mode !== "json" && process.stdout.isTTY);
+    if (pretty) process.stdout.write("\n" + banner(makeStyle(color ?? colorsEnabled(process.stdout)), VERSION) + "\n");
     process.stdout.write(HELP);
     return 0;
   }
   if (command === "version" || args.flags.version) {
-    process.stdout.write("kie 0.1.0\n");
+    process.stdout.write(`kie ${VERSION}\n`);
     return 0;
   }
 
   const config = loadConfig();
   let key: string | null = null;
-  const output = out({ redact: (s) => redact(s, key), quiet: Boolean(args.flags.quiet) });
+  const output = out({ redact: (s) => redact(s, key), quiet: Boolean(args.flags.quiet), mode, color });
 
   // Commands that must work without a key.
   if (command === "key" || command === "config" || command === "models") {

@@ -34,7 +34,7 @@ export async function runStatus(args: ParsedArgs, deps: Deps): Promise<number> {
     return 2;
   }
   const s = await fetchStatus(deps.client, taskId, familyFor(args, taskId));
-  deps.output.json({ taskId: s.taskId, model: s.model, state: s.state, progress: s.progress, creditsConsumed: s.creditsConsumed, resultUrls: s.resultUrls, failCode: s.failCode, failMsg: s.failMsg });
+  deps.output.json({ taskId: s.taskId, model: s.model, state: s.state, progress: s.progress, creditsConsumed: s.creditsConsumed, resultUrls: s.resultUrls, failCode: s.failCode, failMsg: s.failMsg }, { kind: "status" });
   return s.state === "fail" ? 1 : 0;
 }
 
@@ -63,28 +63,31 @@ export async function waitForTask(taskId: string, family: Family, args: ParsedAr
   while (Date.now() - started < timeoutS * 1000) {
     last = await fetchStatus(client, taskId, family);
     if (last.state === "success" || last.state === "fail") break;
-    output.progress(`${taskId} ${last.state}${last.progress !== undefined ? ` ${last.progress}%` : ""}`);
+    output.progress(`${model}  ${last.state}${last.progress !== undefined ? ` ${last.progress}%` : ""}  ${taskId}`, started);
     await sleep(pollS * 1000);
   }
 
+  output.endProgress();
   if (!last || (last.state !== "success" && last.state !== "fail")) {
     output.warn(`Timed out after ${timeoutS}s; the task keeps running on KIE. Resume with: kie wait ${taskId}`);
-    output.json({ taskId, state: last?.state ?? "unknown", timedOut: true });
+    output.json({ taskId, model, state: last?.state ?? "unknown", timedOut: true }, { kind: "task" });
     return 4;
   }
 
   if (last.state === "fail") {
     appendLedger({ ts: new Date().toISOString(), event: "failed", taskId, model, kind: "raw", estimate: null, credits: last.creditsConsumed ?? 0, error: last.failMsg });
-    output.json({ taskId, state: "fail", failCode: last.failCode, failMsg: last.failMsg, creditsConsumed: last.creditsConsumed });
+    output.json({ taskId, model, state: "fail", failCode: last.failCode, failMsg: last.failMsg, creditsConsumed: last.creditsConsumed }, { kind: "task" });
     output.error(`Task failed: ${last.failMsg ?? last.failCode ?? "unknown reason"}`);
     return 1;
   }
 
   let files: string[] = [];
   if (!noDownload && last.resultUrls.length) {
+    output.progress(`downloading ${last.resultUrls.length} file${last.resultUrls.length > 1 ? "s" : ""}…`, started);
     files = await downloadResults(client, last.resultUrls, outDir, name);
+    output.endProgress();
   }
   appendLedger({ ts: new Date().toISOString(), event: "completed", taskId, model, kind: "raw", estimate: null, credits: last.creditsConsumed, files });
-  output.json({ taskId, model, state: "success", creditsConsumed: last.creditsConsumed, files, resultUrls: last.resultUrls, note: "resultUrls expire in ~24h; use files." });
+  output.json({ taskId, model, state: "success", creditsConsumed: last.creditsConsumed, files, resultUrls: last.resultUrls, note: "resultUrls expire in ~24h; use files." }, { kind: "task" });
   return 0;
 }

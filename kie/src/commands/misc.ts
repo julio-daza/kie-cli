@@ -18,14 +18,14 @@ interface Deps {
 export async function runCredits(_args: ParsedArgs, deps: Deps): Promise<number> {
   const balance = await deps.client().credits();
   const spent = spentToday(readLedger());
-  deps.output.json({ balance, spentToday: spent, dailyBudget: deps.config.dailyBudget, remainingToday: Math.max(0, deps.config.dailyBudget - spent) });
+  deps.output.json({ balance, spentToday: spent, dailyBudget: deps.config.dailyBudget, remainingToday: Math.max(0, deps.config.dailyBudget - spent) }, { kind: "credits" });
   return 0;
 }
 
 export async function runModels(args: ParsedArgs, deps: Deps): Promise<number> {
   const kind = str(args.flags, "kind");
   const rows = MODELS.filter((m) => !kind || m.kind === kind).map((m) => ({ name: m.name, kind: m.kind, label: m.label, supports: m.supports, docs: m.docs, notes: m.notes }));
-  deps.output.json(rows);
+  deps.output.json(rows, { kind: "models" });
   return 0;
 }
 
@@ -39,14 +39,14 @@ export async function runUpload(args: ParsedArgs, deps: Deps): Promise<number> {
   const ext = extname(file).toLowerCase();
   const type: Record<string, string> = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".mp4": "video/mp4", ".mov": "video/quicktime", ".mp3": "audio/mpeg", ".wav": "audio/wav" };
   const url = await deps.client().upload(new Uint8Array(bytes), basename(file), type[ext] ?? "application/octet-stream");
-  deps.output.json({ url, note: "KIE deletes uploaded files after ~3 days." });
+  deps.output.json({ url, note: "KIE deletes uploaded files after ~3 days." }, { kind: "upload" });
   return 0;
 }
 
 export async function runLedger(args: ParsedArgs, deps: Deps): Promise<number> {
   const limit = Number(str(args.flags, "limit") ?? 20);
   const entries = readLedger();
-  deps.output.json({ path: ledgerPath(), spentToday: spentToday(entries), entries: entries.slice(-limit) });
+  deps.output.json({ path: ledgerPath(), spentToday: spentToday(entries), entries: entries.slice(-limit) }, { kind: "ledger" });
   return 0;
 }
 
@@ -81,7 +81,7 @@ export async function runKey(args: ParsedArgs, deps: Deps): Promise<number> {
     case "set": {
       const value = await readSecret("Paste your KIE API key (input hidden): ");
       const where = storeKey(value);
-      deps.output.info(`Key stored in ${where === "keychain" ? "macOS Keychain (service kie-cli)" : `${configDir()}/key (0600)`}.`);
+      deps.output.success(`Key stored in ${where === "keychain" ? "macOS Keychain (service kie-cli)" : `${configDir()}/key (0600)`}.`);
       deps.output.info("Recommended: at https://kie.ai/api-key set hourly/daily caps and an IP whitelist for this key.");
       return 0;
     }
@@ -95,7 +95,7 @@ export async function runKey(args: ParsedArgs, deps: Deps): Promise<number> {
       } catch {
         ok = false;
       }
-      deps.output.json({ source, key: mask(key), valid: ok, balance });
+      deps.output.json({ source, key: mask(key), valid: ok, balance }, { kind: "key" });
       return ok ? 0 : 1;
     }
     case "delete": {
@@ -113,7 +113,7 @@ export async function runConfig(args: ParsedArgs, deps: Deps): Promise<number> {
   const [sub, key, value] = args.positionals;
   const config = loadConfig();
   if (sub === "get" || sub === undefined) {
-    deps.output.json({ path: `${configDir()}/config.json`, ...config });
+    deps.output.json({ path: `${configDir()}/config.json`, ...config }, { kind: "config" });
     return 0;
   }
   if (sub === "set" && key && value !== undefined) {
