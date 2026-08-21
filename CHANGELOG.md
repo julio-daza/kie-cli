@@ -3,7 +3,11 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
-## Unreleased
+## [0.3.0] — 2026-08-21
+
+### Added
+- Published to npm as [`@uxdata/kie`](https://www.npmjs.com/package/@uxdata/kie): `npm i -g @uxdata/kie`.
+  Releases are built and published from GitHub Actions with npm provenance.
 
 ### Changed
 - The website moved to its own repository, [kie-landing](https://github.com/julio-daza/kie-landing).

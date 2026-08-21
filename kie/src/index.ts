@@ -9,7 +9,7 @@ import { redact, resolveKey } from "./keystore.js";
 import { out, type Mode } from "./output.js";
 import { banner, makeStyle, colorsEnabled } from "./ui.js";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 
 const HELP = `Usage:
   kie key set|check|delete                     Store the API key (macOS Keychain / 0600 file)

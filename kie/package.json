@@ -1,7 +1,7 @@
 {
-  "name": "@myclis/kie",
-  "version": "0.2.0",
-  "description": "Zero-dependency CLI for KIE.ai media generation (images & video), built for AI agents with hard spend guards.",
+  "name": "@uxdata/kie",
+  "version": "0.3.0",
+  "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/julio-daza/kie-cli/issues"
   },
-  "author": "Julio Daza",
+  "author": "Julio Daza (uxdata)",
   "keywords": [
     "kie",
     "kie.ai",

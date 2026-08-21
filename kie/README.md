@@ -1,5 +1,8 @@
 # kie — KIE.ai media generation CLI for agents
 
+[![npm](https://img.shields.io/npm/v/%40uxdata%2Fkie?logo=npm&color=cb3837)](https://www.npmjs.com/package/@uxdata/kie)
+[![CI](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml)
+
 Generate images and video through [KIE.ai](https://kie.ai) from the terminal or
 from an AI agent, with the key locked away and a hard ceiling on what any
 single run can spend.
@@ -14,12 +17,22 @@ single run can spend.
 ## Install
 
 ```bash
+npm i -g @uxdata/kie     # Node ≥ 20
+kie version
+```
+
+Every release is published from GitHub Actions with [npm provenance](https://docs.npmjs.com/generating-provenance-statements),
+so you can verify the tarball came from this repository: `npm audit signatures`.
+
+<details>
+<summary>From source</summary>
+
+```bash
 git clone https://github.com/julio-daza/kie-cli.git
 cd kie-cli/kie
-npm install        # dev deps only (typescript)
-npm run build
-npm link           # exposes `kie` on your PATH
+npm install && npm run build && npm link
 ```
+</details>
 
 ## Setup (2 minutes, do it right)
 

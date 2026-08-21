@@ -1,5 +1,6 @@
 # kie-cli
 
+[![npm](https://img.shields.io/npm/v/%40uxdata%2Fkie?logo=npm&color=cb3837)](https://www.npmjs.com/package/@uxdata/kie)
 [![CI](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -9,7 +10,7 @@ ships with a matching agent skill. Today the repo holds one: `kie`.
 
 | CLI | What it does | Skill |
 |-----|--------------|-------|
-| [`kie/`](kie/) | Image & video generation on [KIE.ai](https://kie.ai) with hard spend guards, Keychain-stored key, no callbacks to third parties | [`kie/skill/kie-media`](kie/skill/kie-media/SKILL.md) |
+| [`kie/`](kie/) — `npm i -g @uxdata/kie` | Image & video generation on [KIE.ai](https://kie.ai) with hard spend guards, Keychain-stored key, no callbacks to third parties | [`kie/skill/kie-media`](kie/skill/kie-media/SKILL.md) |
 
 ## Design rules shared by every CLI here
 
