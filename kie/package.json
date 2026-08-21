@@ -1,5 +1,5 @@
 {
-  "name": "@uxdata/kie",
+  "name": "@julio-daza/kie",
   "version": "0.3.0",
   "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
@@ -36,7 +36,7 @@
   "bugs": {
     "url": "https://github.com/julio-daza/kie-cli/issues"
   },
-  "author": "Julio Daza (uxdata)",
+  "author": "Julio Daza",
   "keywords": [
     "kie",
     "kie.ai",

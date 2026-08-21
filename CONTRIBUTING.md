@@ -43,6 +43,6 @@ and `package.json` together, and add a line to `CHANGELOG.md`.
 
 1. Bump `version` in `kie/package.json` and `VERSION` in `kie/src/index.ts`; add a `CHANGELOG.md` entry.
 2. Commit, then `git tag vX.Y.Z && git push origin main --tags`.
-3. `.github/workflows/release.yml` runs the tests and publishes `@uxdata/kie` to npm with
+3. `.github/workflows/release.yml` runs the tests and publishes `@julio-daza/kie` to npm with
    provenance via trusted publishing (no token stored anywhere). The GitHub release is created
    automatically with the CHANGELOG section as notes.

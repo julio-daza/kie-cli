@@ -6,7 +6,7 @@ shape and flag names are part of the public contract.
 ## [0.3.0] — 2026-08-21
 
 ### Added
-- Published to npm as [`@uxdata/kie`](https://www.npmjs.com/package/@uxdata/kie): `npm i -g @uxdata/kie`.
+- Published to npm as [`@julio-daza/kie`](https://www.npmjs.com/package/@julio-daza/kie): `npm i -g @julio-daza/kie`.
   Releases are built and published from GitHub Actions with npm provenance.
 
 ### Changed

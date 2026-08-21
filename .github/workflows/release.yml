@@ -1,6 +1,6 @@
 name: Release
 
-# Publishes @uxdata/kie to npm when a version tag is pushed (v0.3.0, v1.2.3 …).
+# Publishes @julio-daza/kie to npm when a version tag is pushed (v0.3.0, v1.2.3 …).
 # Uses npm trusted publishing (OIDC): no NPM_TOKEN secret anywhere, and every tarball
 # carries a provenance attestation linking it to this repo, workflow and commit.
 on:
