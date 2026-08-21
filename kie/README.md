@@ -1,6 +1,6 @@
 # kie — KIE.ai media generation CLI for agents
 
-[![npm](https://img.shields.io/npm/v/%40julio-daza%2Fkie?logo=npm&color=cb3837)](https://www.npmjs.com/package/@julio-daza/kie)
+[![npm](https://img.shields.io/npm/v/%40uxdata-co%2Fkie?logo=npm&color=cb3837)](https://www.npmjs.com/package/@uxdata-co/kie)
 [![CI](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml)
 
 Generate images and video through [KIE.ai](https://kie.ai) from the terminal or
@@ -17,7 +17,7 @@ single run can spend.
 ## Install
 
 ```bash
-npm i -g @julio-daza/kie     # Node ≥ 20
+npm i -g @uxdata-co/kie     # Node ≥ 20
 kie version
 ```
 

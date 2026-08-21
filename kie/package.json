@@ -1,5 +1,5 @@
 {
-  "name": "@julio-daza/kie",
+  "name": "@uxdata-co/kie",
   "version": "0.3.0",
   "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
