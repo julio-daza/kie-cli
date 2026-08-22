@@ -10,7 +10,8 @@ kie/skills/
 .env
 .env.*
 !.env.example
-kie-media/
+/kie-media/
+/kie/kie-media/
 *.key
 ledger.jsonl
 
