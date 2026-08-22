@@ -1,6 +1,8 @@
 # dependencies / build
 node_modules/
 dist/
+# bundled copy of skills/kie-media created by `npm run build` in kie/
+kie/skills/
 .astro/
 *.tgz
 

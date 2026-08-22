@@ -25,7 +25,7 @@ hand it a paid API key.
 3. Only set `estimate` when the price is documented somewhere citable; otherwise leave `null`
    so the guard requires `--max-credits`.
 4. Add a test in `kie/test/catalog.test.ts` and a row to the catalog table in `kie/README.md`
-   and `kie/skill/kie-media/references/kie-api.md`.
+   and `skills/kie-media/references/kie-api.md`.
 
 ## Workflow
 

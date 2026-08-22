@@ -149,14 +149,46 @@ someone bypasses this CLI entirely.
 Adding a model = one entry in `src/catalog.ts` (a `build()` that maps generic flags to the model's
 `input`) + a test. Verify the input schema on `docs.kie.ai/market/<vendor>/<model>` first.
 
-## Agent skill
+## Use it from chat (Claude Code · Codex)
 
-`skill/kie-media/SKILL.md` teaches Claude Code (or any Agent-Skills-compatible agent) when and how
-to call this CLI, including the budget etiquette. Install by symlinking:
+The point of `kie` is that an agent can generate media for you **without ever holding the key**.
+The package ships an agent skill, `kie-media`, that teaches the agent when to generate, which
+model to pick, to check the budget first, to always cap video spend, and to hand back file paths.
 
 ```bash
-ln -s "$PWD/skill/kie-media" ~/.claude/skills/kie-media
+npm i -g @uxdata-co/kie
+kie key set            # paste the key once — it goes to the Keychain, never to the agent
+kie skill install      # → ~/.claude/skills/kie-media  and  ~/.agents/skills/kie-media
 ```
+
+`--agent claude` or `--agent codex` installs one of them; `--project` installs into the current
+repo (`.claude/skills/` / `.agents/skills/`) so teammates get it too. Alternative without the
+CLI: `npx skills add julio-daza/kie-cli`.
+
+### Claude Code
+
+1. Run the three commands above.
+2. Start a **new** Claude Code session (skills are discovered at startup — CLI, desktop app and IDE extension all read `~/.claude/skills/`).
+3. Ask in plain language: *"Generate a 16:9 hero image of an isometric coffee shop for the landing."*
+   Claude loads `kie-media`, runs `kie credits --json`, then `kie image nano-banana-2 … --json`, and
+   answers with the local file path and the credits spent. `/kie-media` invokes it explicitly.
+
+### Codex
+
+1. Same three commands (`kie skill install --agent codex` if you only use Codex).
+2. Start a new Codex session (CLI, IDE extension or desktop app — all read `~/.agents/skills/`).
+3. Ask naturally, or invoke it explicitly with `$kie-media`: *"$kie-media make a 5-second clip of the
+   barista sliding a cup across the counter, cap it at 80 credits."* `/skills` lists what is installed.
+
+### What the agent will and won't do
+
+- Images first; video only after you approve the look, and always with `--max-credits`.
+- Exit code 3 (spend guard) is reported back to you with the reason — the agent never raises the
+  cap on its own.
+- It never asks for, prints or sets the API key. If the key is missing it tells you to run `kie key set`.
+- You get a **file path**, never a KIE URL (they expire in 24 h).
+
+Tune the budget the agent can burn per day with `kie config set dailyBudget 300`.
 
 ## Development
 

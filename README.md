@@ -10,7 +10,7 @@ ships with a matching agent skill. Today the repo holds one: `kie`.
 
 | CLI | What it does | Skill |
 |-----|--------------|-------|
-| [`kie/`](kie/) — `npm i -g @uxdata-co/kie` | Image & video generation on [KIE.ai](https://kie.ai) with hard spend guards, Keychain-stored key, no callbacks to third parties | [`kie/skill/kie-media`](kie/skill/kie-media/SKILL.md) |
+| [`kie/`](kie/) — `npm i -g @uxdata-co/kie` | Image & video generation on [KIE.ai](https://kie.ai) with hard spend guards, Keychain-stored key, no callbacks to third parties | [`skills/kie-media`](skills/kie-media/SKILL.md) — `kie skill install` |
 
 ## Design rules shared by every CLI here
 
@@ -23,7 +23,7 @@ ships with a matching agent skill. Today the repo holds one: `kie`.
 ## Repository layout
 
 - [`kie/`](kie/) — the CLI (TypeScript, zero runtime dependencies) and its tests.
-- [`kie/skill/kie-media/`](kie/skill/kie-media/) — the agent skill.
+- [`skills/kie-media/`](skills/kie-media/) — the agent skill for Claude Code and Codex (`kie skill install`, or `npx skills add julio-daza/kie-cli`).
 - Website: [julio-daza/kie-landing](https://github.com/julio-daza/kie-landing) → https://kie-landing.pages.dev
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and [CHANGELOG.md](CHANGELOG.md).

@@ -21,7 +21,8 @@ export type View =
   | { kind: "submitted" }
   | { kind: "upload" }
   | { kind: "key" }
-  | { kind: "config" };
+  | { kind: "config" }
+  | { kind: "skill" };
 
 export interface Output {
   mode: Mode;
@@ -128,6 +129,13 @@ function render(value: unknown, view: View | undefined, style: Style): string {
         ["valid", v.valid ? style.green("yes") : style.red("no")],
         ["balance", v.balance === null ? style.dim("—") : `${s(v.balance)} credits`],
       ], style);
+    case "skill": {
+      const rows = (v.results as Rec[]).map((r) => {
+        const st = r.status === "skipped" ? style.yellow("skipped") : style.green(s(r.status));
+        return [r.agent === "claude" ? "Claude Code" : "Codex", `${st}  ${style.dim(s(r.path))}`] as [string, string];
+      });
+      return panel(`${brandTag(style)}  skill ${s(v.skill)} ${style.dim(`(${s(v.scope)})`)}`, rows, style);
+    }
     case "config":
       return panel(`${brandTag(style)}  config  ${style.dim(s(v.path))}`, Object.entries(v).filter(([k]) => k !== "path").map(([k, val]) => [k, s(val)] as [string, string]), style);
     default:

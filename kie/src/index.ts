@@ -4,12 +4,13 @@ import { KieClient, KieError } from "./client.js";
 import { loadConfig } from "./config.js";
 import { GENERATE_BOOLEANS, runGenerate, runRaw } from "./commands/generate.js";
 import { runConfig, runCredits, runKey, runLedger, runModels, runUpload } from "./commands/misc.js";
+import { runSkill } from "./commands/skill.js";
 import { runStatus, runWait } from "./commands/tasks.js";
 import { redact, resolveKey } from "./keystore.js";
 import { out, type Mode } from "./output.js";
 import { banner, makeStyle, colorsEnabled } from "./ui.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
 
 const HELP = `Usage:
   kie key set|check|delete                     Store the API key (macOS Keychain / 0600 file)
@@ -23,6 +24,8 @@ const HELP = `Usage:
   kie upload <file>                            Upload a local file → temporary URL for --ref/--image
   kie ledger [--limit 20]                      Local spend log (real creditsConsumed)
   kie config [get] | config set <key> <value>  dailyBudget, maxCreditsPerTask, outDir, pollSeconds, waitTimeoutSeconds
+  kie skill install [--agent claude|codex|all] [--project] [--force]
+                                               Install the kie-media agent skill (Claude Code / Codex)
 
 Generation options:
   --prompt <text>        --ref <url> (repeatable)   --image <url>   --end-image <url>
@@ -40,7 +43,7 @@ Exit codes: 0 ok · 1 task failed · 2 usage · 3 blocked by spend guard · 4 ti
 `;
 
 async function main(argv: string[]): Promise<number> {
-  const args = parseArgs(argv, new Set([...GENERATE_BOOLEANS, "no-download", "help", "version", "color", "no-color", "pretty"]));
+  const args = parseArgs(argv, new Set([...GENERATE_BOOLEANS, "no-download", "help", "version", "color", "no-color", "pretty", "project", "force"]));
   const command = args.positionals.shift();
   const color = args.flags["no-color"] || args.flags.color === false ? false : undefined;
   const mode: Mode | undefined = args.flags.json ? "json" : args.flags.pretty ? "pretty" : undefined;
@@ -60,6 +63,7 @@ async function main(argv: string[]): Promise<number> {
   const output = out({ redact: (s) => redact(s, key), quiet: Boolean(args.flags.quiet), mode, color });
 
   // Commands that must work without a key.
+  if (command === "skill") return runSkill(args, { output });
   if (command === "key" || command === "config" || command === "models") {
     const lazy = () => {
       key = resolveKey().key;

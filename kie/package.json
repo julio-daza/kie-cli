@@ -1,6 +1,6 @@
 {
   "name": "@uxdata-co/kie",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
   "type": "module",
@@ -9,6 +9,7 @@
   },
   "files": [
     "dist",
+    "skills",
     "README.md",
     "LICENSE"
   ],
@@ -16,7 +17,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/sync-skill.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/test/*.test.js",
     "dev": "npm run build && node dist/src/index.js",

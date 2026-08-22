@@ -3,6 +3,18 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## [0.4.0] — 2026-08-21
+
+### Added
+- `kie skill install [--agent claude|codex|all] [--project] [--force]` installs the bundled
+  `kie-media` agent skill into `~/.claude/skills/` (Claude Code) and/or `~/.agents/skills/` (Codex).
+  `kie skill path` / `kie skill show` for inspection. The skill now ships inside the npm package.
+- README and website tutorials for using `kie` from chat in Claude Code and Codex.
+
+### Changed
+- The skill moved from `kie/skill/kie-media` to `skills/kie-media` at the repo root, so
+  `npx skills add julio-daza/kie-cli` discovers it.
+
 ## [0.3.0] — 2026-08-21
 
 ### Added
