@@ -29,7 +29,7 @@
 
 ```bash
 npm i -g @uxdata-co/kie
-kie key set            # pega la key una vez → Keychain de macOS (archivo 0600 en otros sistemas)
+kie key set            # pega la key una vez → llavero del sistema (Keychain · DPAPI · Secret Service)
 kie skill install      # enseña a Claude Code, Codex, Cursor y Gemini CLI a usarla
 kie image nano-banana-2 --prompt "cafetería isométrica, luz cálida" --aspect 16:9
 ```
@@ -44,15 +44,15 @@ por defecto. `kie` está construida sobre las premisas contrarias.
 | | **kie** (`@uxdata-co/kie`) | [felores/kie-cli-mcp](https://github.com/felores/kie-cli-mcp) |
 |---|---|---|
 | Dependencias en runtime | **0** — solo built-ins de Node; ~700 líneas que puedes auditar antes de confiar | 582 paquetes en el lockfile (`sqlite3`, `express`, `yargs`, SDK de MCP…) |
-| Dónde vive la API key | **Keychain de macOS** (archivo 0600 en otros sistemas); variable de entorno solo con opt-in explícito; la salida se redacta | Variable de entorno `KIE_AI_API_KEY` |
+| Dónde vive la API key | **Llavero del sistema** — Keychain de macOS, DPAPI de Windows, Secret Service de Linux (archivo 0600 como respaldo); variable de entorno solo con opt-in explícito; la salida se redacta | Variable de entorno `KIE_AI_API_KEY` |
 | Hosts de salida | **Solo `api.kie.ai` y el host de subida de KIE**; `callBackUrl` se rechaza en todas partes | Los mismos hosts de KIE, pero cada tarea se crea con un `callBackUrl` fijo → `proxy.kie.ai/mcp-callback` salvo que lo sobrescribas |
 | Protección de gasto | **Tres chequeos antes de que el request salga**: tope por tarea, presupuesto diario con un ledger de `creditsConsumed` *reales*, saldo. Bloqueado = exit 3, nada enviado | Flujo de cotizar + aprobar (`prepare_media_generation` → `submit_media_generation`); sin ledger diario |
-| Integración con agentes | **Agent Skills** (`SKILL.md`) para Claude Code, Codex, Cursor y Gemini CLI — `kie skill install`, nada corriendo en segundo plano | Servidor MCP (stdio/HTTP) + servidor compatible con OpenAI; un proceso permanente que retiene la key |
+| Integración con agentes | **Agent Skills** para Claude Code, Codex, Cursor, Gemini CLI (`kie skill install`) **más un servidor MCP solo-stdio** para Claude Desktop / app de Codex / Cursor (`kie mcp install`); las imágenes se ven en el chat | Servidor MCP (stdio/HTTP) + servidor compatible con OpenAI; el modo HTTP expone a la red el proceso que tiene la key |
 | Releases | Publicadas desde GitHub Actions con **provenance de npm** (trusted publishing; sin tokens) | Publicadas a mano |
 | UX para humanos | Banner de marca, tablas que se ajustan a tu terminal, medidor de presupuesto, spinner en vivo; JSON estricto al hacer pipe | Salida JSON / herramientas MCP |
 | Resultados | Siempre descargados a disco; devuelve rutas de archivo (las URLs de KIE expiran en 24 h) | Devuelve URLs de KIE; rendezvous por callback opcional |
 | Cobertura de modelos | Curada: Nano Banana 2, Seedream V4, Kling 3.0, Seedance 2.5, MiniMax H3, Veo 3 — más `kie run <cualquier-modelo>` | Más amplia: ~30 herramientas incluyendo audio (Suno, ElevenLabs), Midjourney, upscalers |
-| Tests | 45, sin red (fetch mockeado), en Node 20 y 22 en CI | Suites de Jest por paquete |
+| Tests | 58, sin red (fetch mockeado), en Node 20 y 22 en CI | Suites de Jest por paquete |
 
 `kie-cli-mcp` es un proyecto sólido y la opción correcta si necesitas un **servidor MCP** o su
 lista más amplia de modelos. `kie` es la opción correcta si lo que te importa es **no filtrarle
@@ -60,8 +60,8 @@ una key de pago a un agente** y saber, antes de cada request, cuánto puede cost
 
 ## Cómo funciona
 
-1. **La key en el llavero.** `kie key set` la guarda en el Keychain de macOS (servicio `kie-cli`)
-   o en un archivo `0600`. Los agentes nunca la ven; toda la salida pasa por un redactor.
+1. **La key en el llavero.** `kie key set` la guarda en el Keychain de macOS, DPAPI de Windows o
+   Secret Service de Linux (archivo `0600` como respaldo). Los agentes nunca la ven; toda la salida pasa por un redactor.
 2. **Guardia de gasto delante de cada request.** Los modelos con precio verificado se comparan
    con `maxCreditsPerTask`; el resto exige un `--max-credits` explícito — el agente tiene que
    decir en voz alta cuánto acepta gastar. Un ledger local lleva el costo real por día.
@@ -71,6 +71,9 @@ una key de pago a un agente** y saber, antes de cada request, cuánto puede cost
 5. **Un skill de agente, no un servidor.** `kie skill install` deja `kie-media` en
    `~/.claude/skills`, `~/.agents/skills`, `~/.cursor/skills` y `~/.gemini/skills`. Después
    solo pides: *"genera una imagen hero 16:9 de una cafetería isométrica"*.
+6. **Las apps de escritorio usan un servidor MCP.** Su sandbox no llega a tu llavero ni a KIE, así
+   que `kie mcp install` registra `kie mcp` (stdio) en Claude Desktop, Codex y Cursor: la app lo
+   lanza en tu máquina y muestra la imagen generada directamente en el chat.
 
 Referencia completa: **[kiecli.com/es/docs](https://kiecli.com/es/docs)** · README del paquete (en inglés): [`kie/README.md`](kie/README.md).
 

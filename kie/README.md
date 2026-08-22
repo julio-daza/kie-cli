@@ -29,7 +29,7 @@ from an AI agent, with the key locked away and a hard ceiling on what any
 single run can spend.
 
 - **0 runtime dependencies** — Node ≥ 20 built-ins only (`fetch`, `node:test`).
-- **Key in macOS Keychain** (or a `0600` file elsewhere); env vars need an explicit opt-in.
+- **Key in the OS keystore** — macOS Keychain, Windows DPAPI, Linux Secret Service (`0600` file as fallback); env vars need an explicit opt-in.
 - **Only talks to `api.kie.ai` and `kieai.redpandaai.co`** (KIE's official upload host). No telemetry, no proxy, and it **never sends a `callBackUrl`** — results are polled, not pushed anywhere.
 - **Spend guard before every request**: per-task cap, daily budget from a local ledger of *real* `creditsConsumed`, and balance check.
 - **Always downloads results** (KIE result URLs expire in ~24 h).
@@ -149,8 +149,10 @@ someone bypasses this CLI entirely.
 
 ## Security notes
 
-- The key is read from, in order: `KIE_API_KEY` **only if** `KIE_ALLOW_ENV_KEY=1`; macOS Keychain
-  (service `kie-cli`); `~/.config/kie/key` (0600). Set `KIE_DISABLE_KEYCHAIN=1` to force the file.
+- The key is read from, in order: `KIE_API_KEY` **only if** `KIE_ALLOW_ENV_KEY=1`; the OS keystore
+  (macOS Keychain service `kie-cli` · Windows DPAPI user scope · Linux `secret-tool`); `~/.config/kie/key`
+  (0600). Set `KIE_DISABLE_KEYCHAIN=1` to force the file. System tools are invoked by absolute path, never
+  through a shell, and the secret never appears on a command line.
 - Output is passed through a redactor; the key never appears in stdout/stderr/ledger.
 - `callBackUrl` is rejected everywhere (`--set`, `--input`). Nothing about your generations leaves your
   machine except the request to KIE.
@@ -214,6 +216,24 @@ CLI: `npx skills add julio-daza/kie-cli`.
 2. Start `gemini`; `/skills list` shows **kie-media**. There is no slash invocation — Gemini activates the skill
    itself when your request matches and asks for consent the first time.
 3. Ask: *"Generate a square product shot of a ceramic mug on linen, soft daylight."*
+
+### Desktop apps (Claude Desktop, Codex app) — use the MCP server
+
+Desktop apps run the agent's shells in a sandbox without your PATH, keystore or network, so the
+skill cannot run there. The fix is a local **MCP server**: the app spawns `kie mcp` on your
+machine, the key stays in the keystore, the app only receives results — including the image
+itself, shown inline in the chat.
+
+```bash
+kie mcp install                   # Claude Desktop + Codex + Cursor
+kie mcp install --app claude      # one of: claude | codex | cursor
+```
+
+Restart the app. It now has 8 tools: `kie_credits`, `kie_models`, `kie_generate_image`,
+`kie_generate_video` (requires `max_credits`), `kie_task_status`, `kie_wait_task`, `kie_upload`,
+`kie_ledger`. They go through the same spend guard and ledger as the CLI. The config is written
+with the absolute Node path (GUI apps don't inherit your shell PATH); `kie mcp config` prints the
+snippet if you prefer to paste it. stdio only — there is deliberately no HTTP mode.
 
 ### What the agent will and won't do
 

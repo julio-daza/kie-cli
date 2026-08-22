@@ -1,6 +1,6 @@
 {
   "name": "@uxdata-co/kie",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
   "type": "module",
@@ -42,6 +42,7 @@
     "agent-skills",
     "ai-agents",
     "claude-code",
+    "claude-desktop",
     "cli",
     "codex",
     "cursor",
@@ -50,6 +51,8 @@
     "kie",
     "kie.ai",
     "kling",
+    "mcp",
+    "mcp-server",
     "nano-banana",
     "veo3",
     "video-generation"

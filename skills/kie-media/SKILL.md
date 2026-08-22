@@ -9,7 +9,7 @@ description: >
 license: MIT
 metadata:
   author: juliodaza
-  version: "1.3"
+  version: "1.4"
 ---
 
 ## When to Use
@@ -36,6 +36,7 @@ user did not ask to spend money on. Every call costs credits.
 | **Never ask for, echo, or set the API key.** If `kie key check` fails, tell the user to run `kie key set` themselves. | The key must not enter the conversation. |
 | **One task at a time, `--no-wait` only for batches the user asked for.** | Pending tasks reserve budget at their cap. |
 | If `kie` is not installed: `npm i -g @uxdata-co/kie` (Node ≥ 20), then the user runs `kie key set`. | Official package, published from CI with provenance. |
+| **If `kie` is not on PATH, or `api.kie.ai` is unreachable (proxy 403 / allowlist), this session is not running on the user's machine.** Do not try to install the CLI or pass the key here. Tell the user: run the request from Claude Code / Codex in their terminal, or use the `kie` MCP server (`kie mcp install`) from the desktop app. | Desktop-app sandboxes have no keystore and no network to KIE; the key must stay on the user's machine. |
 | **Always pass `--json`** and parse stdout; stderr is chatter. | When stdout is a terminal the CLI switches to human tables; `--json` pins the machine contract. |
 
 ## Model Choice

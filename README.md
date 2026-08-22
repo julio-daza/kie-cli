@@ -29,7 +29,7 @@
 
 ```bash
 npm i -g @uxdata-co/kie
-kie key set            # paste the key once → macOS Keychain (0600 file elsewhere)
+kie key set            # paste the key once → OS keystore (Keychain · DPAPI · Secret Service)
 kie skill install      # teach Claude Code, Codex, Cursor and Gemini CLI to use it
 kie image nano-banana-2 --prompt "isometric coffee shop, warm light" --aspect 16:9
 ```
@@ -44,15 +44,15 @@ built around the opposite assumptions.
 | | **kie** (`@uxdata-co/kie`) | [felores/kie-cli-mcp](https://github.com/felores/kie-cli-mcp) |
 |---|---|---|
 | Runtime dependencies | **0** — Node built-ins only; ~700 lines you can audit before trusting it | 582 packages in the lockfile (`sqlite3`, `express`, `yargs`, MCP SDK…) |
-| Where the API key lives | **macOS Keychain** (0600 file elsewhere); env var only with an explicit opt-in; output is redacted | `KIE_AI_API_KEY` environment variable |
+| Where the API key lives | **OS keystore** — macOS Keychain, Windows DPAPI, Linux Secret Service (0600 file as fallback); env var only with an explicit opt-in; output is redacted | `KIE_AI_API_KEY` environment variable |
 | Outbound hosts | **Only `api.kie.ai` and KIE's upload host**; `callBackUrl` is rejected everywhere | Same KIE hosts, but every task is created with a hardcoded `callBackUrl` → `proxy.kie.ai/mcp-callback` unless you override it |
 | Spend protection | **Three checks before the request leaves**: per-task cap, daily budget from a ledger of *real* `creditsConsumed`, balance. Blocked = exit 3, nothing sent | Quote + approve flow (`prepare_media_generation` → `submit_media_generation`); no daily ledger |
-| Agent integration | **Agent Skills** (`SKILL.md`) for Claude Code, Codex, Cursor and Gemini CLI — `kie skill install`, nothing to run in the background | MCP server (stdio/HTTP) + OpenAI-compatible server; a long-running process that holds the key |
+| Agent integration | **Agent Skills** for Claude Code, Codex, Cursor, Gemini CLI (`kie skill install`) **plus a stdio-only MCP server** for Claude Desktop / Codex app / Cursor (`kie mcp install`); images shown inline in the chat | MCP server (stdio/HTTP) + OpenAI-compatible server; HTTP mode exposes the key-holding process to the network |
 | Releases | Published from GitHub Actions with **npm provenance** (trusted publishing; no tokens) | Published manually |
 | Human UX | Brand banner, tables that fit your terminal, budget meter, live spinner; strict JSON when piped | JSON / MCP tool output |
 | Results | Always downloaded to disk; returns file paths (KIE URLs expire in 24 h) | Returns KIE URLs; optional callback rendezvous |
 | Model coverage | Curated: Nano Banana 2, Seedream V4, Kling 3.0, Seedance 2.5, MiniMax H3, Veo 3 — plus `kie run <any-model>` | Broader: ~30 tools including audio (Suno, ElevenLabs), Midjourney, upscalers |
-| Tests | 45, no network (fetch mocked), run on Node 20 and 22 in CI | Jest suites per package |
+| Tests | 58, no network (fetch mocked), run on Node 20 and 22 in CI | Jest suites per package |
 
 `kie-cli-mcp` is a solid project and the right choice if you need an **MCP server** or its wider
 model list. `kie` is the right choice if the thing you care about is **not leaking a paid key
@@ -60,8 +60,8 @@ to an agent** and knowing, before any request, the most it can cost.
 
 ## How it works
 
-1. **Key in the keystore.** `kie key set` stores it in the macOS Keychain (service `kie-cli`) or a
-   `0600` file. Agents never see it; every byte of output passes through a redactor.
+1. **Key in the keystore.** `kie key set` stores it in the macOS Keychain, Windows DPAPI or Linux
+   Secret Service (`0600` file as fallback). Agents never see it; every byte of output passes through a redactor.
 2. **Spend guard in front of every request.** Models with a verified price are checked against
    `maxCreditsPerTask`; everything else requires an explicit `--max-credits` — the agent has to
    say out loud how much it accepts to spend. A local ledger tracks the real cost per day.
@@ -71,6 +71,9 @@ to an agent** and knowing, before any request, the most it can cost.
 5. **An agent skill, not a server.** `kie skill install` drops `kie-media` into
    `~/.claude/skills`, `~/.agents/skills`, `~/.cursor/skills` and `~/.gemini/skills`. Then you
    just ask: *"generate a 16:9 hero image of an isometric coffee shop"*.
+6. **Desktop apps get an MCP server.** Their sandboxes can't reach your keystore or KIE, so
+   `kie mcp install` registers `kie mcp` (stdio) in Claude Desktop, Codex and Cursor: the app
+   spawns it on your machine and shows the generated image right in the chat.
 
 Full reference: **[kiecli.com/docs](https://kiecli.com/docs)** · package README: [`kie/README.md`](kie/README.md).
 

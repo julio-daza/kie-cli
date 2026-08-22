@@ -3,7 +3,7 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
-## Unreleased (0.6.0)
+## [0.6.0] — 2026-08-22
 
 ### Added
 - `kie mcp` — an MCP server (stdio only, no dependencies) exposing the CLI as tools:
@@ -15,6 +15,12 @@ shape and flag names are part of the public contract.
 - `kie mcp install [--app claude|codex|cursor|all]` writes the server into
   `claude_desktop_config.json`, `~/.codex/config.toml` or `~/.cursor/mcp.json` using the
   absolute Node path (GUI apps do not inherit the shell PATH). `kie mcp config` prints the snippet.
+
+- OS keystores on every platform: macOS Keychain, **Windows DPAPI** (user scope, ciphertext in
+  `~/.config/kie/key.dpapi`) and **Linux Secret Service** via `secret-tool` when installed; the
+  `0600` file remains the fallback. `kie key check` reports which one is in use.
+- `kie-media` skill: if `kie` is not on PATH or `api.kie.ai` is unreachable, the agent now tells
+  the user the session is sandboxed and points to the terminal or the MCP server.
 
 ### Fixed
 - Keychain access uses `/usr/bin/security` by absolute path so it works when spawned with an

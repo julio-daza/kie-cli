@@ -5,7 +5,7 @@ import { str, type ParsedArgs } from "../args.js";
 import { MODELS } from "../catalog.js";
 import type { KieClient } from "../client.js";
 import { configDir, loadConfig, saveConfig, type KieConfig } from "../config.js";
-import { deleteKey, mask, resolveKey, storeKey } from "../keystore.js";
+import { deleteKey, describeSource, mask, resolveKey, storeKey } from "../keystore.js";
 import { ledgerPath, readLedger, spentToday } from "../ledger.js";
 import type { Output } from "../output.js";
 
@@ -81,7 +81,7 @@ export async function runKey(args: ParsedArgs, deps: Deps): Promise<number> {
     case "set": {
       const value = await readSecret("Paste your KIE API key (input hidden): ");
       const where = storeKey(value);
-      deps.output.success(`Key stored in ${where === "keychain" ? "macOS Keychain (service kie-cli)" : `${configDir()}/key (0600)`}.`);
+      deps.output.success(`Key stored in ${describeSource(where)}.`);
       deps.output.info("Recommended: at https://kie.ai/api-key set hourly/daily caps and an IP whitelist for this key.");
       return 0;
     }
