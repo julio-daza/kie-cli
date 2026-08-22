@@ -1,7 +1,28 @@
-# kie — KIE.ai media generation CLI for agents
+<p align="center">
+  <a href="https://kiecli.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/julio-daza/kie-cli/main/docs/assets/logo-dark.png">
+      <img src="https://raw.githubusercontent.com/julio-daza/kie-cli/main/docs/assets/logo-light.png" alt="KIE CLI" width="300">
+    </picture>
+  </a>
+</p>
 
-[![npm](https://img.shields.io/npm/v/%40uxdata-co%2Fkie?logo=npm&color=cb3837)](https://www.npmjs.com/package/@uxdata-co/kie)
-[![CI](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://www.npmjs.com/package/@uxdata-co/kie"><img src="https://img.shields.io/npm/v/%40uxdata-co%2Fkie?logo=npm&color=cb3837" alt="npm"></a>
+  <a href="https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml"><img src="https://github.com/julio-daza/kie-cli/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/@uxdata-co/kie"><img src="https://img.shields.io/badge/dependencies-0-00a8ff" alt="0 dependencies"></a>
+  <a href="https://github.com/julio-daza/kie-cli/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT"></a>
+</p>
+
+<p align="center">
+  <a href="https://kiecli.com/docs">Docs</a> · <a href="https://kiecli.com/#tutorials">Use it from chat</a> · <a href="https://github.com/julio-daza/kie-cli">GitHub</a> · <a href="https://github.com/julio-daza/kie-cli/blob/main/README.es.md">Español</a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/julio-daza/kie-cli/main/docs/assets/terminal.png" alt="kie in a terminal" width="620">
+</p>
+
+# kie — KIE.ai media generation CLI for agents
 
 Generate images and video through [KIE.ai](https://kie.ai) from the terminal or
 from an AI agent, with the key locked away and a hard ceiling on what any

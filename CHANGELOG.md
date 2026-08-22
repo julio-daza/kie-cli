@@ -3,6 +3,12 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## [0.5.1] — 2026-08-22
+
+### Changed
+- README (GitHub and npm): KIE CLI logo, terminal screenshot, comparison with other KIE
+  clients, and a Spanish version (`README.es.md`). No code changes.
+
 ## [0.5.0] — 2026-08-22
 
 ### Added
