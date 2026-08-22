@@ -9,12 +9,12 @@ description: >
 license: MIT
 metadata:
   author: juliodaza
-  version: "1.2"
+  version: "1.3"
 ---
 
 ## When to Use
 
-Works in Claude Code (`/kie-media`) and Codex (`$kie-media`), or automatically when the request matches.
+Works in Claude Code (`/kie-media`), Codex (`$kie-media`), Cursor (`/kie-media` in Agent chat) and Gemini CLI (auto-activated), or automatically whenever the request matches.
 
 - The user wants a generated image or video (not a chart, not a screenshot, not an SVG icon you can hand-write).
 - An asset is needed for a landing page, blog post, store listing, social post, demo data, or storyboard.
@@ -34,9 +34,8 @@ user did not ask to spend money on. Every call costs credits.
 | **Prefer images over video for drafts.** Generate 1 image, show it, then iterate. Only move to video once the user confirms the look. | Video costs 5–20× more per run. |
 | **Local reference files go through `kie upload <file>` first**, then `--ref`/`--image <url>`. | Models take URLs, not paths. Uploads auto-delete after ~3 days. |
 | **Never ask for, echo, or set the API key.** If `kie key check` fails, tell the user to run `kie key set` themselves. | The key must not enter the conversation. |
-| If `kie` is not installed: `npm i -g @uxdata/kie` (Node ≥ 20). | Official package, published with provenance. |
 | **One task at a time, `--no-wait` only for batches the user asked for.** | Pending tasks reserve budget at their cap. |
-| If `kie` is not installed: `npm i -g @julio-daza/kie` (Node ≥ 20). | Official package, published with provenance. |
+| If `kie` is not installed: `npm i -g @uxdata-co/kie` (Node ≥ 20), then the user runs `kie key set`. | Official package, published from CI with provenance. |
 | **Always pass `--json`** and parse stdout; stderr is chatter. | When stdout is a terminal the CLI switches to human tables; `--json` pins the machine contract. |
 
 ## Model Choice

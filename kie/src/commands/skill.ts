@@ -7,12 +7,18 @@ import type { Output } from "../output.js";
 
 /**
  * `kie skill` — installs the bundled `kie-media` agent skill where coding agents look for it:
- *   claude → ~/.claude/skills/kie-media        (project: ./.claude/skills/kie-media)
- *   codex  → ~/.agents/skills/kie-media        (project: ./.agents/skills/kie-media)
+ *   claude → ~/.claude/skills/kie-media   (project: ./.claude/skills/kie-media)
+ *   codex  → ~/.agents/skills/kie-media   (project: ./.agents/skills/kie-media)
+ *   cursor → ~/.cursor/skills/kie-media   (project: ./.cursor/skills/kie-media)
+ *   gemini → ~/.gemini/skills/kie-media   (project: ./.gemini/skills/kie-media)
+ * Codex, Cursor and Gemini CLI all read ~/.agents/skills too, so `--agent codex` alone already
+ * covers the three; the explicit folders exist for people who only use one of them.
  * The skill ships inside the npm package (skills/kie-media), so no network is needed.
  */
-export type Agent = "claude" | "codex";
-export const AGENTS: Agent[] = ["claude", "codex"];
+export type Agent = "claude" | "codex" | "cursor" | "gemini";
+export const AGENTS: Agent[] = ["claude", "codex", "cursor", "gemini"];
+export const AGENT_LABEL: Record<Agent, string> = { claude: "Claude Code", codex: "Codex", cursor: "Cursor", gemini: "Gemini CLI" };
+const AGENT_DIR: Record<Agent, string> = { claude: ".claude", codex: ".agents", cursor: ".cursor", gemini: ".gemini" };
 export const SKILL_NAME = "kie-media";
 
 interface Deps {
@@ -30,8 +36,7 @@ export function bundledSkillDir(): string {
 
 export function targetDir(agent: Agent, scope: "global" | "project", home: string, cwd: string): string {
   const base = scope === "global" ? home : cwd;
-  const folder = agent === "claude" ? ".claude" : ".agents";
-  return join(base, folder, "skills", SKILL_NAME);
+  return join(base, AGENT_DIR[agent], "skills", SKILL_NAME);
 }
 
 function parseAgents(value: string | undefined): Agent[] {
@@ -78,7 +83,7 @@ export async function runSkill(args: ParsedArgs, deps: Deps): Promise<number> {
       const skipped = results.filter((r) => r.status === "skipped");
       if (skipped.length) output.info(`Already present: ${skipped.map((r) => r.agent).join(", ")}. Re-run with --force to overwrite.`);
       const done = results.filter((r) => r.status !== "skipped");
-      if (done.length) output.success(`Skill ready. Start a new ${done.map((r) => r.agent === "claude" ? "Claude Code" : "Codex").join(" / ")} session and ask for an image.`);
+      if (done.length) output.success(`Skill ready. Start a new ${done.map((r) => AGENT_LABEL[r.agent]).join(" / ")} session and ask for an image.`);
       return 0;
     }
     case "path":
@@ -88,7 +93,7 @@ export async function runSkill(args: ParsedArgs, deps: Deps): Promise<number> {
       process.stdout.write(readFileSync(skillFile, "utf8"));
       return 0;
     default:
-      output.error("Usage: kie skill install [--agent claude|codex|all] [--project] [--force] | kie skill path | kie skill show");
+      output.error("Usage: kie skill install [--agent claude|codex|cursor|gemini|all] [--project] [--force] | kie skill path | kie skill show");
       return 2;
   }
 }

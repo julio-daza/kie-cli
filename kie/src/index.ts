@@ -10,7 +10,7 @@ import { redact, resolveKey } from "./keystore.js";
 import { out, type Mode } from "./output.js";
 import { banner, makeStyle, colorsEnabled } from "./ui.js";
 
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 
 const HELP = `Usage:
   kie key set|check|delete                     Store the API key (macOS Keychain / 0600 file)
@@ -24,8 +24,8 @@ const HELP = `Usage:
   kie upload <file>                            Upload a local file → temporary URL for --ref/--image
   kie ledger [--limit 20]                      Local spend log (real creditsConsumed)
   kie config [get] | config set <key> <value>  dailyBudget, maxCreditsPerTask, outDir, pollSeconds, waitTimeoutSeconds
-  kie skill install [--agent claude|codex|all] [--project] [--force]
-                                               Install the kie-media agent skill (Claude Code / Codex)
+  kie skill install [--agent claude|codex|cursor|gemini|all] [--project] [--force]
+                                               Install the kie-media agent skill (Claude Code, Codex, Cursor, Gemini CLI)
 
 Generation options:
   --prompt <text>        --ref <url> (repeatable)   --image <url>   --end-image <url>

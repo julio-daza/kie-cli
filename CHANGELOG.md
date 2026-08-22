@@ -3,6 +3,17 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## [0.5.0] — 2026-08-22
+
+### Added
+- `kie skill install` now supports `--agent cursor` (`~/.cursor/skills/`) and `--agent gemini`
+  (`~/.gemini/skills/`) in addition to `claude` and `codex`; `all` installs the four.
+
+### Fixed
+- The bundled `SKILL.md` listed two wrong install commands (`@uxdata/kie`, `@julio-daza/kie`).
+  It now says the real package, `npm i -g @uxdata-co/kie`. Agents reading the 0.4.0 skill
+  would have failed to install the CLI — update with `kie skill install --force`.
+
 ## [0.4.0] — 2026-08-21
 
 ### Added

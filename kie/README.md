@@ -149,7 +149,7 @@ someone bypasses this CLI entirely.
 Adding a model = one entry in `src/catalog.ts` (a `build()` that maps generic flags to the model's
 `input`) + a test. Verify the input schema on `docs.kie.ai/market/<vendor>/<model>` first.
 
-## Use it from chat (Claude Code · Codex)
+## Use it from chat (Claude Code · Codex · Cursor · Gemini CLI)
 
 The point of `kie` is that an agent can generate media for you **without ever holding the key**.
 The package ships an agent skill, `kie-media`, that teaches the agent when to generate, which
@@ -158,11 +158,12 @@ model to pick, to check the budget first, to always cap video spend, and to hand
 ```bash
 npm i -g @uxdata-co/kie
 kie key set            # paste the key once — it goes to the Keychain, never to the agent
-kie skill install      # → ~/.claude/skills/kie-media  and  ~/.agents/skills/kie-media
+kie skill install      # → ~/.claude/skills, ~/.agents/skills, ~/.cursor/skills, ~/.gemini/skills
 ```
 
-`--agent claude` or `--agent codex` installs one of them; `--project` installs into the current
-repo (`.claude/skills/` / `.agents/skills/`) so teammates get it too. Alternative without the
+`--agent claude|codex|cursor|gemini` installs one of them (Codex, Cursor and Gemini CLI all read
+`~/.agents/skills/`, so `--agent codex` alone covers the three); `--project` installs into the current
+repo so teammates get it too. Alternative without the
 CLI: `npx skills add julio-daza/kie-cli`.
 
 ### Claude Code
@@ -179,6 +180,19 @@ CLI: `npx skills add julio-daza/kie-cli`.
 2. Start a new Codex session (CLI, IDE extension or desktop app — all read `~/.agents/skills/`).
 3. Ask naturally, or invoke it explicitly with `$kie-media`: *"$kie-media make a 5-second clip of the
    barista sliding a cup across the counter, cap it at 80 credits."* `/skills` lists what is installed.
+
+### Cursor
+
+1. Same three commands (`kie skill install --agent cursor` for `~/.cursor/skills/`; Cursor also reads `~/.agents/skills/`).
+2. Open a new Agent chat. Type `/` and pick **kie-media** to attach it to a message, or just ask — the description matches on its own.
+3. Cursor runs the CLI in its terminal and reports the file path. Requires Cursor 2.4+ (Agent Skills).
+
+### Gemini CLI
+
+1. Same three commands (`kie skill install --agent gemini` for `~/.gemini/skills/`; Gemini also reads `~/.agents/skills/`).
+2. Start `gemini`; `/skills list` shows **kie-media**. There is no slash invocation — Gemini activates the skill
+   itself when your request matches and asks for consent the first time.
+3. Ask: *"Generate a square product shot of a ceramic mug on linen, soft daylight."*
 
 ### What the agent will and won't do
 

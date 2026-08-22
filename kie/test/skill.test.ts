@@ -51,18 +51,20 @@ test("targets follow each agent's convention", () => {
   assert.equal(targetDir("codex", "global", "/h", "/p"), "/h/.agents/skills/kie-media");
   assert.equal(targetDir("claude", "project", "/h", "/p"), "/p/.claude/skills/kie-media");
   assert.equal(targetDir("codex", "project", "/h", "/p"), "/p/.agents/skills/kie-media");
+  assert.equal(targetDir("cursor", "global", "/h", "/p"), "/h/.cursor/skills/kie-media");
+  assert.equal(targetDir("gemini", "global", "/h", "/p"), "/h/.gemini/skills/kie-media");
 });
 
-test("install copies SKILL.md + references for both agents by default", async () => {
+test("install copies SKILL.md + references for all four agents by default", async () => {
   const output = capture();
   const code = await runSkill(parseArgs(["install"], new Set(["project", "force"])), { output, home, cwd: home, source });
   assert.equal(code, 0);
-  for (const dir of [".claude", ".agents"]) {
+  for (const dir of [".claude", ".agents", ".cursor", ".gemini"]) {
     assert.ok(existsSync(join(home, dir, "skills", "kie-media", "SKILL.md")));
     assert.ok(existsSync(join(home, dir, "skills", "kie-media", "references", "kie-api.md")));
   }
   const res = output.stdout[0] as { results: { status: string }[] };
-  assert.deepEqual(res.results.map((r) => r.status), ["installed", "installed"]);
+  assert.deepEqual(res.results.map((r) => r.status), ["installed", "installed", "installed", "installed"]);
 });
 
 test("install skips existing targets unless --force, and honours --agent", async () => {
@@ -88,5 +90,5 @@ test("--project installs into the current directory and bad --agent is rejected"
   await runSkill(parseArgs(["install", "--project", "--agent", "claude"], new Set(["project", "force"])), { output, home, cwd, source });
   assert.ok(existsSync(join(cwd, ".claude", "skills", "kie-media", "SKILL.md")));
   rmSync(cwd, { recursive: true, force: true });
-  await assert.rejects(runSkill(parseArgs(["install", "--agent", "cursor"], new Set()), { output, home, cwd: home, source }), /--agent must be one of/);
+  await assert.rejects(runSkill(parseArgs(["install", "--agent", "windsurf"], new Set()), { output, home, cwd: home, source }), /--agent must be one of/);
 });

@@ -132,7 +132,8 @@ function render(value: unknown, view: View | undefined, style: Style): string {
     case "skill": {
       const rows = (v.results as Rec[]).map((r) => {
         const st = r.status === "skipped" ? style.yellow("skipped") : style.green(s(r.status));
-        return [r.agent === "claude" ? "Claude Code" : "Codex", `${st}  ${style.dim(s(r.path))}`] as [string, string];
+        const labels: Record<string, string> = { claude: "Claude Code", codex: "Codex", cursor: "Cursor", gemini: "Gemini CLI" };
+        return [labels[s(r.agent)] ?? s(r.agent), `${st}  ${style.dim(s(r.path))}`] as [string, string];
       });
       return panel(`${brandTag(style)}  skill ${s(v.skill)} ${style.dim(`(${s(v.scope)})`)}`, rows, style);
     }

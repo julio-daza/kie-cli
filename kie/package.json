@@ -1,6 +1,6 @@
 {
   "name": "@uxdata-co/kie",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Zero-dependency CLI that lets AI agents generate images & video on KIE.ai with the API key locked away and hard spend guards.",
   "license": "MIT",
   "type": "module",
@@ -39,16 +39,20 @@
   },
   "author": "Julio Daza",
   "keywords": [
-    "kie",
-    "kie.ai",
-    "cli",
+    "agent-skills",
     "ai-agents",
     "claude-code",
+    "cli",
+    "codex",
+    "cursor",
+    "gemini-cli",
     "image-generation",
-    "video-generation",
-    "nano-banana",
+    "kie",
+    "kie.ai",
     "kling",
-    "veo3"
+    "nano-banana",
+    "veo3",
+    "video-generation"
   ],
   "publishConfig": {
     "access": "public"
