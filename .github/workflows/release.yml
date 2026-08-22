@@ -38,6 +38,10 @@ jobs:
       - name: Assert zero runtime dependencies
         run: node -e "const d=require('./package.json').dependencies||{}; if(Object.keys(d).length){console.error('runtime deps found:',d);process.exit(1)}"
 
+      # Trusted publishing (OIDC) needs npm >= 11.5; Node 22 ships npm 10.
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@latest && npm --version
+
       - name: Publish to npm (provenance)
         run: npm publish --provenance --access public
 
