@@ -4,6 +4,7 @@ import { KieClient, KieError } from "./client.js";
 import { loadConfig } from "./config.js";
 import { GENERATE_BOOLEANS, runGenerate, runRaw } from "./commands/generate.js";
 import { runConfig, runCredits, runKey, runLedger, runModels, runUpload } from "./commands/misc.js";
+import { runMcp } from "./commands/mcp.js";
 import { runSkill } from "./commands/skill.js";
 import { runStatus, runWait } from "./commands/tasks.js";
 import { redact, resolveKey } from "./keystore.js";
@@ -26,6 +27,8 @@ const HELP = `Usage:
   kie config [get] | config set <key> <value>  dailyBudget, maxCreditsPerTask, outDir, pollSeconds, waitTimeoutSeconds
   kie skill install [--agent claude|codex|cursor|gemini|all] [--project] [--force]
                                                Install the kie-media agent skill (Claude Code, Codex, Cursor, Gemini CLI)
+  kie mcp                                      Run the MCP server on stdio (for desktop apps)
+  kie mcp install [--app claude|codex|cursor|all]   Register the server in Claude Desktop / Codex / Cursor
 
 Generation options:
   --prompt <text>        --ref <url> (repeatable)   --image <url>   --end-image <url>
@@ -64,6 +67,7 @@ async function main(argv: string[]): Promise<number> {
 
   // Commands that must work without a key.
   if (command === "skill") return runSkill(args, { output });
+  if (command === "mcp") return runMcp(args, { config, output, version: VERSION });
   if (command === "key" || command === "config" || command === "models") {
     const lazy = () => {
       key = resolveKey().key;

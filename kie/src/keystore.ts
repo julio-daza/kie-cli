@@ -27,7 +27,7 @@ function useKeychain(): boolean {
 
 function keychainRead(): string | null {
   try {
-    const out = execFileSync("security", ["find-generic-password", "-s", SERVICE, "-a", ACCOUNT, "-w"], {
+    const out = execFileSync("/usr/bin/security", ["find-generic-password", "-s", SERVICE, "-a", ACCOUNT, "-w"], {
       stdio: ["ignore", "pipe", "ignore"],
     });
     const value = out.toString("utf8").trim();
@@ -39,14 +39,14 @@ function keychainRead(): string | null {
 
 function keychainWrite(value: string): void {
   // -U updates in place if the item already exists.
-  execFileSync("security", ["add-generic-password", "-s", SERVICE, "-a", ACCOUNT, "-w", value, "-U"], {
+  execFileSync("/usr/bin/security", ["add-generic-password", "-s", SERVICE, "-a", ACCOUNT, "-w", value, "-U"], {
     stdio: "ignore",
   });
 }
 
 function keychainDelete(): boolean {
   try {
-    execFileSync("security", ["delete-generic-password", "-s", SERVICE, "-a", ACCOUNT], { stdio: "ignore" });
+    execFileSync("/usr/bin/security", ["delete-generic-password", "-s", SERVICE, "-a", ACCOUNT], { stdio: "ignore" });
     return true;
   } catch {
     return false;

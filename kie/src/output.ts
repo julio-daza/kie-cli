@@ -22,7 +22,8 @@ export type View =
   | { kind: "upload" }
   | { kind: "key" }
   | { kind: "config" }
-  | { kind: "skill" };
+  | { kind: "skill" }
+  | { kind: "mcp" };
 
 export interface Output {
   mode: Mode;
@@ -136,6 +137,12 @@ function render(value: unknown, view: View | undefined, style: Style): string {
         return [labels[s(r.agent)] ?? s(r.agent), `${st}  ${style.dim(s(r.path))}`] as [string, string];
       });
       return panel(`${brandTag(style)}  skill ${s(v.skill)} ${style.dim(`(${s(v.scope)})`)}`, rows, style);
+    }
+    case "mcp": {
+      const rows = (v.results as Rec[]).map((r) => [s(r.label), `${style.green(s(r.status))}  ${style.dim(s(r.path))}`] as [string, string]);
+      const sp = v.server as { command: string; args: string[] };
+      rows.push(["server", style.dim(`${sp.command} ${sp.args.join(" ")}`)]);
+      return panel(`${brandTag(style)}  mcp server registered`, rows, style);
     }
     case "config":
       return panel(`${brandTag(style)}  config  ${style.dim(s(v.path))}`, Object.entries(v).filter(([k]) => k !== "path").map(([k, val]) => [k, s(val)] as [string, string]), style);

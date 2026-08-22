@@ -3,6 +3,23 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## Unreleased (0.6.0)
+
+### Added
+- `kie mcp` — an MCP server (stdio only, no dependencies) exposing the CLI as tools:
+  `kie_credits`, `kie_models`, `kie_generate_image`, `kie_generate_video`, `kie_task_status`,
+  `kie_wait_task`, `kie_upload`, `kie_ledger`. Same catalog, spend guard and ledger as the CLI;
+  generated images are returned inline so the chat can show them. Built for desktop apps whose
+  shells run in a sandbox (Claude Desktop, Codex app) — the server runs on your machine, the
+  key stays in the keystore.
+- `kie mcp install [--app claude|codex|cursor|all]` writes the server into
+  `claude_desktop_config.json`, `~/.codex/config.toml` or `~/.cursor/mcp.json` using the
+  absolute Node path (GUI apps do not inherit the shell PATH). `kie mcp config` prints the snippet.
+
+### Fixed
+- Keychain access uses `/usr/bin/security` by absolute path so it works when spawned with an
+  empty environment.
+
 ## [0.5.1] — 2026-08-22
 
 ### Changed
