@@ -35,6 +35,20 @@ single run can spend.
 - **Always downloads results** (KIE result URLs expire in ~24 h).
 - **Two output modes**: pretty tables/panels when you run it in a terminal, strict **JSON on stdout** when piped or with `--json` — agents get a stable contract, humans get something readable.
 
+## Support this project
+
+`kie` runs on **KIE.ai**: the same Veo, Nano Banana, GPT Image, Kling and Seedance models the
+official APIs serve, at up to **84% less** — −86% on GPT Image 2, −61% on Veo 3.1, −50% on Nano
+Banana 2. Prepaid wallet, no hidden fees, and failed generations are never billed.
+
+<p align="center">
+  <a href="https://kie.ai?ref=abddfed9f3893359a999113356686aaa"><img src="https://img.shields.io/badge/Sign%20up%20on%20Kie-Support%20this%20project-00a8ff?style=for-the-badge" alt="Sign up on Kie"></a>
+</p>
+
+<p align="center">
+  <sub>By signing up with this affiliate link you support the maintenance and updates of this code.</sub>
+</p>
+
 ## Install
 
 ```bash
@@ -251,3 +265,15 @@ Tune the budget the agent can burn per day with `kie config set dailyBudget 300`
 npm test          # tsc + node:test (no network; fetch is mocked)
 npm run typecheck
 ```
+
+## Disclaimer
+
+Independent community project — **not affiliated with, endorsed by, or supported by KIE.ai**.
+"KIE" and the KIE logo are trademarks of their respective owner and are used only to identify the
+service this tool talks to.
+
+**Affiliate disclosure:** the "Sign up on Kie" link above is a referral link. If you create an
+account through it, this project may earn a commission — at no extra cost to you. Prices and
+discounts quoted here come from [kie.ai](https://kie.ai) and can change.
+
+MIT — see [LICENSE](https://github.com/julio-daza/kie-cli/blob/main/LICENSE).

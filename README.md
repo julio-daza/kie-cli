@@ -38,6 +38,20 @@ kie skill install      # teach Claude Code, Codex, Cursor and Gemini CLI to use 
 kie image nano-banana-2 --prompt "isometric coffee shop, warm light" --aspect 16:9
 ```
 
+## Support this project
+
+`kie` runs on **KIE.ai**: the same Veo, Nano Banana, GPT Image, Kling and Seedance models the
+official APIs serve, at up to **84% less** — −86% on GPT Image 2, −61% on Veo 3.1, −50% on Nano
+Banana 2. Prepaid wallet, no hidden fees, and failed generations are never billed.
+
+<p align="center">
+  <a href="https://kie.ai?ref=abddfed9f3893359a999113356686aaa"><img src="https://img.shields.io/badge/Sign%20up%20on%20Kie-Support%20this%20project-00a8ff?style=for-the-badge" alt="Sign up on Kie"></a>
+</p>
+
+<p align="center">
+  <sub>By signing up with this affiliate link you support the maintenance and updates of this code.</sub>
+</p>
+
 ## Why kie
 
 Media APIs are the most expensive credentials to leak: one leaked key can burn hundreds of
@@ -96,6 +110,10 @@ This is an independent, community project. It is **not affiliated with, endorsed
 supported by KIE.ai**. "KIE" and the KIE logo are trademarks of their respective owner and
 are used here only to identify the service the tool talks to. Comparison data about other
 projects was taken from their public repositories on 2026-08-22; open an issue if it is outdated.
+
+**Affiliate disclosure:** the "Sign up on Kie" link above is a referral link. If you create an
+account through it, this project may earn a commission — at no extra cost to you. Prices and
+discounts quoted here come from [kie.ai](https://kie.ai) and can change.
 
 ## License
 

@@ -39,6 +39,20 @@ kie skill install      # enseña a Claude Code, Codex, Cursor y Gemini CLI a usa
 kie image nano-banana-2 --prompt "cafetería isométrica, luz cálida" --aspect 16:9
 ```
 
+## Apoya este proyecto
+
+`kie` corre sobre **KIE.ai**: los mismos modelos Veo, Nano Banana, GPT Image, Kling y Seedance que
+sirven las APIs oficiales, hasta **84% más barato** — −86% en GPT Image 2, −61% en Veo 3.1, −50% en
+Nano Banana 2. Billetera prepaga, sin cargos ocultos, y las generaciones fallidas nunca se cobran.
+
+<p align="center">
+  <a href="https://kie.ai?ref=abddfed9f3893359a999113356686aaa"><img src="https://img.shields.io/badge/Reg%C3%ADstrate%20en%20Kie-Apoya%20este%20proyecto-00a8ff?style=for-the-badge" alt="Regístrate en Kie"></a>
+</p>
+
+<p align="center">
+  <sub>Al registrarte con este link de afiliado apoyas el mantenimiento y actualización de este código.</sub>
+</p>
+
 ## Por qué kie
 
 Las APIs de medios son las credenciales más caras de perder: una key filtrada puede quemar
@@ -98,6 +112,9 @@ por KIE.ai**. "KIE" y el logo de KIE son marcas de su respectivo propietario y s
 para identificar el servicio con el que habla la herramienta. Los datos comparativos de otros
 proyectos se tomaron de sus repositorios públicos el 2026-08-22; abre un issue si quedaron
 desactualizados.
+
+**Divulgación de afiliado:** el enlace "Regístrate en Kie" de arriba es un enlace de referido. Si creas una cuenta a través de él, este proyecto puede recibir una comisión — sin costo
+extra para ti. Los precios y descuentos citados provienen de [kie.ai](https://kie.ai) y pueden cambiar.
 
 ## Licencia
 
