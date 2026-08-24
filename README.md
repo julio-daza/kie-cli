@@ -27,6 +27,10 @@
   <img src="https://raw.githubusercontent.com/julio-daza/kie-cli/main/docs/assets/terminal.png" alt="kie in a terminal: KIE banner, credits panel with a budget meter, and an image generation completing with the file path and credits spent" width="640">
 </p>
 
+> **Using an AI agent?** Point it at **<https://kiecli.com/skill.md>** — a single
+> self-contained page with the install, the spend guard, the model table, the
+> `--json` contract and every exit code. Or just say: `Read https://kiecli.com/skill.md`
+
 ```bash
 npm i -g @uxdata-co/kie
 kie key set            # paste the key once → OS keystore (Keychain · DPAPI · Secret Service)

@@ -27,6 +27,11 @@
   <img src="https://raw.githubusercontent.com/julio-daza/kie-cli/main/docs/assets/terminal.png" alt="kie en una terminal: banner de KIE, panel de créditos con medidor de presupuesto y una generación de imagen completándose con la ruta del archivo y los créditos gastados" width="640">
 </p>
 
+> **¿Usas un agente de IA?** Apúntalo a **<https://kiecli.com/skill.md>** — una
+> sola página autocontenida con la instalación, la guardia de gasto, la tabla de
+> modelos, el contrato `--json` y todos los códigos de salida. O dile:
+> `Read https://kiecli.com/skill.md`
+
 ```bash
 npm i -g @uxdata-co/kie
 kie key set            # pega la key una vez → llavero del sistema (Keychain · DPAPI · Secret Service)
