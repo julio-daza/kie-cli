@@ -69,7 +69,7 @@ built around the opposite assumptions.
 | Releases | Published from GitHub Actions with **npm provenance** (trusted publishing; no tokens) | Published manually |
 | Human UX | Brand banner, tables that fit your terminal, budget meter, live spinner; strict JSON when piped | JSON / MCP tool output |
 | Results | Always downloaded to disk; returns file paths (KIE URLs expire in 24 h) | Returns KIE URLs; optional callback rendezvous |
-| Model coverage | Curated: Nano Banana 2, Seedream V4, Kling 3.0, Seedance 2.5, MiniMax H3, Veo 3 — plus `kie run <any-model>` | Broader: ~30 tools including audio (Suno, ElevenLabs), Midjourney, upscalers |
+| Model coverage | Curated: Nano Banana 2, Seedream V4, Grok Imagine 2, Kling 3.0, Kling O3, Seedance 2.5, MiniMax H3, Wan 3.0, Gemini Omni 1.1, Veo 3 — plus `kie run <any-model>` | Broader: ~30 tools including audio (Suno, ElevenLabs), Midjourney, upscalers |
 | Tests | 58, no network (fetch mocked), run on Node 20 and 22 in CI | Jest suites per package |
 
 `kie-cli-mcp` is a solid project and the right choice if you need an **MCP server** or its wider

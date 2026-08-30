@@ -1,15 +1,16 @@
 ---
 name: kie-media
 description: >
-  Generate images and videos with the `kie` CLI (KIE.ai: Nano Banana 2, Seedream, Kling 3.0,
-  Seedance 2.5, MiniMax H3, Veo 3) under strict spend limits, and hand back local files.
+  Generate images and videos with the `kie` CLI (KIE.ai: Nano Banana 2, Seedream, Grok Imagine 2,
+  Kling 3.0, Kling O3, Seedance 2.5, MiniMax H3, Wan 3.0, Gemini Omni 1.1, Veo 3) under strict
+  spend limits, and hand back local files.
   Trigger: user asks to generate, create, render or edit an image, illustration, logo draft,
-  mockup, poster, video clip, animation, or b-roll; or mentions KIE, Kling, Veo, Seedance,
-  Nano Banana, "genera una imagen", "hazme un video".
+  mockup, poster, video clip, animation, or b-roll; or mentions KIE, Kling, Veo, Seedance, Wan,
+  Grok Imagine, Gemini Omni, Nano Banana, "genera una imagen", "hazme un video".
 license: MIT
 metadata:
   author: juliodaza
-  version: "1.4"
+  version: "1.5"
 ---
 
 ## When to Use
@@ -43,12 +44,20 @@ user did not ask to spend money on. Every call costs credits.
 
 | Need | Command | Notes |
 |---|---|---|
-| Fast, cheap, good image; edits with refs | `kie image nano-banana-2` | 1K ≈ 8 cr, 2K ≈ 12, 4K ≈ 18. Default choice. |
+| Fast, cheap, good image; edits with refs | `kie image nano-banana-2` | 1K = 8 cr, 2K = 12, 4K = 18. Default choice. |
+| Cheapest image; typography / targeted edits | `kie image grok-image-2` | 4 cr/image. `--ref` (≤5) switches to edit mode. |
 | Posters / text-heavy / alt style | `kie image seedream-v4` | `--ref` switches to edit mode. Needs `--max-credits`. |
-| Short clip with native audio | `kie video kling-3.0 --sound` | 3–15 s, `--set mode=pro` for quality. |
-| Image → video, frames, long (≤30 s) | `kie video seedance-2.5 --image <url>` | `--resolution 480p` for cheap drafts. |
-| Consistent character from refs | `kie video minimax-h3 --ref <url>` | 4–15 s. |
-| Highest quality cinematic | `kie video veo3` (`--fast` for cheaper) | Own endpoint; 16:9 for 1080p. |
+| Cheapest video draft | `kie video wan-3.0 --resolution 480P` | 8 cr/s. `--fast` = Video Prime (same price, quicker). Up to 30 s. |
+| Consistent character from refs | `kie video minimax-h3 --ref <url>` | 768P = 8 cr/s, 2K = 13. 4–15 s, ≤9 refs (first 5 free). |
+| Short clip with native audio | `kie video kling-o3 --sound` | 720p = 14 cr/s mute / 18 with audio; 1080p 18/23; 4k 67. 3–15 s. |
+| Previous-gen audio clip | `kie video kling-3.0 --sound` | 3–15 s, `--set mode=pro`. No published price → needs `--max-credits`. |
+| Text/refs → video, fixed 4/6/8/10 s | `kie video gemini-omni-1.1` | Flat price: 63/84/105/126 cr (≤1080p), 147/168/189/210 at 4k. |
+| Image → video, frames, long (≤30 s) | `kie video seedance-2.5 --image <url>` | 480p = 28 cr/s, 720p = 63, 1080p = 114. `--resolution 480p` for drafts. |
+| Highest quality cinematic | `kie video veo3` (`--fast` for cheaper) | Own endpoint; 16:9 for 1080p. No published price → `--max-credits`. |
+
+Prices are KIE list prices (Aug 30 2026 update, US$0.005/credit) and are pre-flight estimates only —
+the ledger settles on the real `creditsConsumed`. Video is billed per second: a 5 s 1080p Seedance clip
+is ~570 credits, well over the 200-credit default daily budget. Quote the cost before generating.
 
 ## Code Examples
 
@@ -86,7 +95,7 @@ exit 5 → API/auth issue; suggest `kie key check`
 ```bash
 kie models --kind image|video            # catalog with supported flags
 kie image <model> --prompt "…" [--ref url]... [--aspect 16:9] [--resolution 1K|2K|4K] [--out dir] [--name base]
-kie video <model> --prompt "…" [--image url] [--end-image url] [--ref url]... [--duration s] [--sound] --max-credits N
+kie video <model> --prompt "…" [--image url] [--end-image url] [--ref url]... [--duration s] [--resolution …] [--sound] [--fast] --max-credits N
 kie run <model-id> --input '{…}' --max-credits N   # any Market model; verify schema on docs.kie.ai first
 kie upload <file>                        # local file → temporary URL
 kie status <taskId> | kie wait <taskId> --out dir

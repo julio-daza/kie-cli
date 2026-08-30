@@ -3,6 +3,44 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## [0.7.0] — 2026-08-30
+
+Tracks KIE's Aug 10–30 2026 product update: four new models and a price change on MiniMax H3.
+
+### Added
+- **New curated models**, each with a request shape verified against `docs.kie.ai`:
+  - `kie image grok-image-2` — Grok Imagine Image 2.0 (`grok-imagine-image-2-0/text-to-image`,
+    `/image-edit` when `--ref` is given, ≤5 refs). 4 credits per image, the cheapest image in the
+    catalog. The masked `segment-map` / `segment-edit` pair stays on `kie run`.
+  - `kie video kling-o3` — Kling O3 / Kling 3.0 Omni. Routes to `kling-3.0-omni/text-to-video`,
+    `/image-to-video` (`--image`, `--end-image`) or `/reference-to-video` (`--ref`, ≤7).
+    720p/1080p/4k, 3–15 s, `--sound` for native audio.
+  - `kie video wan-3.0` — Wan 3.0, `--fast` switches to Wan 3.0 Video Prime. First/last frames or
+    up to 10 reference images, 480P/720P/1080P, 2–30 s (or `--duration -1` to let the model pick).
+  - `kie video gemini-omni-1.1` — Gemini Omni 1.1 Flash. Refs or first/last frames, 360p–4k,
+    fixed 4/6/8/10 s durations.
+- **Credit estimates for video.** Every model KIE publishes a price for now carries a pre-flight
+  estimate, so the spend guard can block an expensive clip before it is sent instead of demanding
+  `--max-credits` blindly: `minimax-h3` 8/13 credits per second (768P/2K), `seedance-2.5` 28/63/114
+  (480p/720p/1080p), `kling-o3` 14–67 depending on resolution and audio, `wan-3.0` 8/16/32,
+  `gemini-omni-1.1` a flat 63–210 per generation, `grok-image-2` 4.
+  `kling-3.0`, `seedream-v4` and `veo3` have no published per-model price and still require
+  `--max-credits`.
+- `--resolution 768P|2K` on `minimax-h3`, matching the parameter KIE added with the price change.
+
+### Changed
+- **MiniMax H3 is half price** (768P 8 credits/s, 2K 13 credits/s; first five reference images
+  free, then 4 credits each). The CLI defaults to `768P` — KIE's own default is `2K` — so drafts
+  stay cheap; pass `--resolution 2K` for the higher tier.
+- `minimax-h3 --ref` now defaults to `--aspect adaptive` (KIE's documented default) instead of
+  `16:9`, and rejects more than 9 reference images up front.
+- `seedance-2.5` accepts `--duration -1` (model picks the length); the estimate is then omitted
+  and `--max-credits` is required again.
+- `--resolution` and `--aspect` match case-insensitively and are canonicalised to the spelling
+  KIE expects, so `--resolution 4k` works where the API wants `4K`.
+- MCP tool descriptions and the `kie-media` skill carry the new per-second rates, so an agent can
+  quote a cost before generating.
+
 ## [0.6.0] — 2026-08-22
 
 ### Added

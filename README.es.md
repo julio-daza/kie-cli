@@ -70,7 +70,7 @@ por defecto. `kie` está construida sobre las premisas contrarias.
 | Releases | Publicadas desde GitHub Actions con **provenance de npm** (trusted publishing; sin tokens) | Publicadas a mano |
 | UX para humanos | Banner de marca, tablas que se ajustan a tu terminal, medidor de presupuesto, spinner en vivo; JSON estricto al hacer pipe | Salida JSON / herramientas MCP |
 | Resultados | Siempre descargados a disco; devuelve rutas de archivo (las URLs de KIE expiran en 24 h) | Devuelve URLs de KIE; rendezvous por callback opcional |
-| Cobertura de modelos | Curada: Nano Banana 2, Seedream V4, Kling 3.0, Seedance 2.5, MiniMax H3, Veo 3 — más `kie run <cualquier-modelo>` | Más amplia: ~30 herramientas incluyendo audio (Suno, ElevenLabs), Midjourney, upscalers |
+| Cobertura de modelos | Curada: Nano Banana 2, Seedream V4, Grok Imagine 2, Kling 3.0, Kling O3, Seedance 2.5, MiniMax H3, Wan 3.0, Gemini Omni 1.1, Veo 3 — más `kie run <cualquier-modelo>` | Más amplia: ~30 herramientas incluyendo audio (Suno, ElevenLabs), Midjourney, upscalers |
 | Tests | 58, sin red (fetch mockeado), en Node 20 y 22 en CI | Suites de Jest por paquete |
 
 `kie-cli-mcp` es un proyecto sólido y la opción correcta si necesitas un **servidor MCP** o su

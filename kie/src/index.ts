@@ -32,7 +32,7 @@ const HELP = `Usage:
 
 Generation options:
   --prompt <text>        --ref <url> (repeatable)   --image <url>   --end-image <url>
-  --aspect 16:9          --resolution 1K|2K|4K|720p  --duration <s>  --sound   --fast
+  --aspect 16:9          --resolution <model-specific, see \`kie models\`>  --duration <s>  --sound  --fast
   --format png|jpg       --set key=value (repeatable, raw model field)
   --out <dir>            --name <base>   --no-wait   --timeout <s>   --poll <s>   --no-download
   --max-credits <n>      Accept spending up to n credits on this task (required when no estimate)

@@ -49,7 +49,8 @@ const TOOLS = [
     name: "kie_generate_image",
     description:
       "Generate an image on KIE.ai, wait for it, download it and return the local file path (and the image itself when small enough). " +
-      "Models: " + IMAGE_MODELS.join(", ") + ". nano-banana-2 has a verified price (1K=8, 2K=12, 4K=18 credits); other models require max_credits. " +
+      "Models: " + IMAGE_MODELS.join(", ") + ". nano-banana-2 (1K=8, 2K=12, 4K=18 credits) and grok-image-2 (4 credits) have verified prices; " +
+      "models without one require max_credits. " +
       "Blocked by the spend guard → isError with the reason; nothing was sent. Never retry with a higher cap without asking the user.",
     inputSchema: {
       type: "object",
@@ -59,7 +60,7 @@ const TOOLS = [
         prompt: { type: "string" },
         refs: { type: "array", items: { type: "string" }, description: "Reference image URLs (edit / style). Use kie_upload for local files." },
         aspect: { type: "string", description: "e.g. 1:1, 16:9, 9:16, 4:3, 3:4" },
-        resolution: { type: "string", description: "1K | 2K | 4K" },
+        resolution: { type: "string", description: "1K | 2K | 4K (nano-banana-2, seedream-v4)" },
         format: { type: "string", enum: ["png", "jpg"] },
         out: { type: "string", description: "Output directory (default from config, ./kie-media)" },
         name: { type: "string", description: "Base filename" },
@@ -73,7 +74,9 @@ const TOOLS = [
     name: "kie_generate_video",
     description:
       "Generate a video on KIE.ai, wait for it, download it and return the local file path. Models: " + VIDEO_MODELS.join(", ") +
-      ". Video has no verified price: max_credits is REQUIRED — ask the user for the cap (start ≤ 80). Images first; only make video after the user approves the look.",
+      ". Video is priced per second and gets expensive fast (a 5 s clip runs from ~40 to ~570 credits depending on model and " +
+      "resolution), so max_credits is REQUIRED — ask the user for the cap. Call kie_models for the per-second rates before " +
+      "quoting one. Images first; only make video after the user approves the look.",
     inputSchema: {
       type: "object",
       required: ["model", "prompt", "max_credits"],
@@ -85,9 +88,9 @@ const TOOLS = [
         refs: { type: "array", items: { type: "string" }, description: "Reference image URLs" },
         duration: { type: "number", description: "Seconds" },
         aspect: { type: "string" },
-        resolution: { type: "string", description: "480p | 720p | 1080p (model dependent)" },
+        resolution: { type: "string", description: "Model dependent: 480p|720p|1080p (seedance-2.5), 480P|720P|1080P (wan-3.0), 720p|1080p|4k (kling-o3), 360p|720p|1080p|4k (gemini-omni-1.1), 768P|2K (minimax-h3)" },
         sound: { type: "boolean" },
-        fast: { type: "boolean", description: "Cheaper variant where available (veo3_fast)" },
+        fast: { type: "boolean", description: "Faster/cheaper variant where available (veo3 → veo3_fast, wan-3.0 → Video Prime)" },
         out: { type: "string" },
         name: { type: "string" },
         max_credits: { type: "number" },
