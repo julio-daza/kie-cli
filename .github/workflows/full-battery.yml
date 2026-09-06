@@ -37,7 +37,7 @@ jobs:
       - name: Pack dry-run and verify tarball contents
         run: |
           set -euo pipefail
-          npm pack --dry-run --json > /tmp/pack.json
+          npm pack --dry-run --json --ignore-scripts > /tmp/pack.json
           node -e "
             const p = require('/tmp/pack.json')[0];
             const files = p.files.map(f => f.path);
