@@ -1,0 +1,80 @@
+name: Full battery
+
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+jobs:
+  full-battery:
+    name: full-battery
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    defaults:
+      run:
+        working-directory: kie
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: kie/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Assert zero runtime dependencies
+        run: node -e "const d=require('./package.json').dependencies||{}; if(Object.keys(d).length){console.error('runtime deps found:',d);process.exit(1)}"
+
+      - name: Pack dry-run and verify tarball contents
+        run: |
+          set -euo pipefail
+          npm pack --dry-run --json > /tmp/pack.json
+          node -e "
+            const p = require('/tmp/pack.json')[0];
+            const files = p.files.map(f => f.path);
+            const need = ['dist/src/index.js', 'skills/kie-media/SKILL.md'];
+            const missing = need.filter(f => !files.includes(f));
+            if (missing.length) { console.error('tarball missing:', missing); process.exit(1); }
+            console.log('tarball OK:', need.join(', '));
+          "
+
+      - name: Skill sync check (dist skill must match source skill)
+        run: diff -r ../skills/kie-media skills/kie-media
+
+      - name: Version consistency (src VERSION == package.json version)
+        run: |
+          set -euo pipefail
+          PKG=$(node -p "require('./package.json').version")
+          SRC=$(grep -o 'VERSION = "[0-9][^"]*"' src/index.ts | head -1 | sed -E 's/VERSION = "([^"]*)"/\1/')
+          if [ -z "$SRC" ]; then echo "could not find VERSION constant in src/index.ts"; exit 1; fi
+          if [ "$PKG" != "$SRC" ]; then
+            echo "version mismatch: package.json=$PKG src/index.ts VERSION=$SRC"
+            exit 1
+          fi
+          echo "version OK: $PKG"
+
+      - name: CHANGELOG has an entry for this version
+        run: |
+          set -euo pipefail
+          PKG=$(node -p "require('./package.json').version")
+          grep -qF "## [$PKG]" ../CHANGELOG.md || { echo "CHANGELOG.md missing '## [$PKG]' section"; exit 1; }
+
+      - name: Smoke test (--version)
+        run: |
+          set -euo pipefail
+          OUT=$(node dist/src/index.js --version)
+          echo "$OUT"
+          PKG=$(node -p "require('./package.json').version")
+          echo "$OUT" | grep -qF "$PKG" || { echo "--version output does not contain package version $PKG"; exit 1; }
+
+      - name: npm audit (production deps, high severity)
+        run: npm audit --omit=dev --audit-level=high
