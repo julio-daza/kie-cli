@@ -2,15 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
   pull_request:
+    branches: [develop, staging, main]
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: kie · node ${{ matrix.node }}
+    name: "kie · node ${{ matrix.node }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,3 +32,22 @@ jobs:
       - name: Assert zero runtime dependencies
         run: node -e "const d=require('./package.json').dependencies||{}; if(Object.keys(d).length){console.error('runtime deps found:',d);process.exit(1)}"
 
+  enforce-flow:
+    name: enforce-flow
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce branch promotion order
+        run: |
+          BASE="${{ github.base_ref }}"
+          HEAD="${{ github.head_ref }}"
+          echo "PR: $HEAD -> $BASE"
+          if [ "$BASE" = "staging" ] && [ "$HEAD" != "develop" ]; then
+            echo "::error::Only develop may be merged into staging. Got head branch '$HEAD'."
+            exit 1
+          fi
+          if [ "$BASE" = "main" ] && [ "$HEAD" != "staging" ]; then
+            echo "::error::Only staging may be merged into main. Got head branch '$HEAD'."
+            exit 1
+          fi
+          echo "OK"

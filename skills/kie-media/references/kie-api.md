@@ -74,6 +74,22 @@ POST https://kieai.redpandaai.co/api/file-stream-upload   (multipart: file, uplo
 `google/gemini-omni-flash-1-1` quota: images×1 + videos×2 + character_ids×1 ≤ 7, and `first_frame_url`
 excludes `image_urls`, `audio_ids`, `video_list` and `character_ids`.
 
+| `elevenlabs/text-to-speech-multilingual-v2` (alias `eleven-v2`) | `text` (≤5000 chars, required), `voice` (name or ID, required); optional `stability` (0-1, def 0.5), `similarity_boost` (0-1, def 0.75), `style` (0-1, def 0), `speed` (0.7-1.2, def 1), `timestamps` (bool), `previous_text`, `next_text`, `language_code` (ISO 639-1) |
+| `elevenlabs/text-to-speech-turbo-2-5` (alias `eleven-turbo`) | identical schema to `text-to-speech-multilingual-v2` (turbo variant) |
+| `volcengine/video-to-video-lip-sync` (alias `volcengine-lipsync`) | `mode` (enum `lite`\|`basic`, required), `video_url` (required), `audio_url` (required); optional `separate_vocal` (bool, def false), `open_scenedet` (bool, def false, basic-only), `align_audio` (bool, def true, lite-only), `align_audio_reverse` (bool, def false), `templ_start_seconds` (number, def 0). Video 360p–1080p, MOV/MP4/HDR, ≤500MB; audio ≤10MB (mpeg/wav/x-wav/aac/mp4/ogg) |
+| `infinitalk/from-audio` (alias `infinitalk`) | `image_url` (required), `audio_url` (required), `prompt` (≤5000 chars, required); optional `resolution` (enum `480p`\|`720p`, def `480p`), `seed` (10000-1000000) |
+| `kling/ai-avatar-standard` (alias `kling-avatar`) | `image_url` (required), `audio_url` (required), `prompt` (≤5000 chars, required). Audio ≤100MB / ≤5 min |
+| `topaz/image-upscale` (alias `topaz-upscale`) | `image_url` (required), `upscale_factor` (enum `"1"`\|`"2"`\|`"4"`, string not number, def `"2"`) |
+| `recraft/remove-background` (alias `recraft-remove-bg`) | `image` (required — field name is `image`, not `image_url`). PNG/JPG/WEBP ≤5MB, ≤16MP, ≤4096px, ≥256px |
+
+Note: `resultUrls` for the audio models (`eleven-v2`, `eleven-turbo`) are `mp3` or `wav` files; the
+lipsync/avatar models (`volcengine-lipsync`, `infinitalk`, `kling-avatar`) return `mp4` video like any
+other video model.
+
+Deferred (not in the catalog, use `kie run` directly and verify the schema first): `elevenlabs/text-to-dialogue-v3`
+(multi-turn dialogue array), `google/gemini-3-1-flash-tts` (multi-speaker scene TTS), `elevenlabs/audio-isolation`
+(single `audio_url` cleanup) — none fit the flat `--text/--voice` generic-flag shape.
+
 ## Credit prices (KIE list, Aug 30 2026 · 1 credit = US$0.005)
 
 | model | price |
@@ -86,5 +102,6 @@ excludes `image_urls`, `audio_ids`, `video_list` and `character_ids`.
 | `wan/3-0-video`, `wan/3-0-video-prime` | per second — 8 / 16 / 32 (480P / 720P / 1080P) |
 | `google/gemini-omni-flash-1-1` | flat — ≤1080p 63 / 84 / 105 / 126 and 4k 147 / 168 / 189 / 210 for 4 / 6 / 8 / 10 s; with video input 168 (252 at 4k) |
 | `kling-3.0/video`, `bytedance/seedream-v4-*`, `veo3` | not published per-model — pass `--max-credits` |
+| `elevenlabs/text-to-speech-*`, `volcengine/video-to-video-lip-sync`, `infinitalk/from-audio`, `kling/ai-avatar-standard`, `topaz/image-upscale`, `recraft/remove-background` | not published — pass `--max-credits` |
 
 Per-model docs: `https://docs.kie.ai/market/<vendor>/<model>` — check before using `--set` or `kie run`.

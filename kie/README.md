@@ -109,6 +109,13 @@ kie video seedance-2.5 --prompt "…" --image https://…/first.png --resolution
 kie video minimax-h3 --prompt "…" --ref https://…/char.png --duration 6 --max-credits 60
 kie video veo3 --prompt "…" --fast --max-credits 100
 
+# Voice-over / TTS (no published price → --max-credits is required)
+kie speak eleven-v2 --text "Introducing the product." --voice Rachel --max-credits 15
+
+# Lip-sync (video+audio → lip-synced video, or image+audio → talking head)
+kie lipsync volcengine-lipsync --video https://…/clip.mp4 --audio https://…/vo.mp3 --max-credits 100
+kie lipsync infinitalk --image https://…/face.png --audio https://…/vo.mp3 --prompt "talking" --max-credits 100
+
 # Local file as reference (KIE keeps uploads ~3 days)
 kie upload ./sketch.png                       # → {"url": "https://…"}
 
@@ -122,9 +129,12 @@ kie ledger                                    # what was actually spent
 ```
 
 Generation flags: `--prompt`, `--ref <url>` (repeatable), `--image`, `--end-image`, `--aspect`,
-`--resolution`, `--duration`, `--sound`, `--fast`, `--format`, `--set key=value` (raw model
-field, repeatable), `--out`, `--name`, `--no-wait`, `--timeout`, `--poll`, `--no-download`,
-`--max-credits`, `--dry-run`, `--quiet`.
+`--resolution`, `--duration`, `--sound`, `--fast`, `--format`, `--text`, `--voice`, `--audio`,
+`--video`, `--set key=value` (raw model field, repeatable), `--out`, `--name`, `--no-wait`,
+`--timeout`, `--poll`, `--no-download`, `--max-credits`, `--dry-run`, `--quiet`.
+
+`kie speak` and `kie lipsync` models have **no published price** — `--max-credits` is required,
+not optional; the guard blocks the call (exit 3) without it.
 
 ### Output modes
 
@@ -182,6 +192,9 @@ someone bypasses this CLI entirely.
 | `seedance-2.5` | video | `bytedance/seedance-2-5` | frames or multimodal refs, 4–30 s |
 | `minimax-h3` | video | `minimax-h3/{text,image,reference}-to-video` | sub-model chosen from flags |
 | `veo3` | video | `veo3` / `veo3_fast` | own endpoint (`/veo/generate`) |
+| `eleven-v2`, `eleven-turbo` | audio | `elevenlabs/text-to-speech-{multilingual-v2,turbo-2-5}` | `kie speak <model> --text … --voice …`; no published price → `--max-credits` |
+| `volcengine-lipsync`, `infinitalk`, `kling-avatar` | lipsync | `volcengine/video-to-video-lip-sync`, `infinitalk/from-audio`, `kling/ai-avatar-standard` | `kie lipsync <model> --video\|--image … --audio … [--prompt …]`; no published price → `--max-credits` |
+| `topaz-upscale`, `recraft-remove-bg` | image | `topaz/image-upscale`, `recraft/remove-background` | `kie image <model> --image …`; no published price → `--max-credits` |
 
 Adding a model = one entry in `src/catalog.ts` (a `build()` that maps generic flags to the model's
 `input`) + a test. Verify the input schema on `docs.kie.ai/market/<vendor>/<model>` first.
@@ -243,9 +256,10 @@ kie mcp install                   # Claude Desktop + Codex + Cursor
 kie mcp install --app claude      # one of: claude | codex | cursor
 ```
 
-Restart the app. It now has 8 tools: `kie_credits`, `kie_models`, `kie_generate_image`,
-`kie_generate_video` (requires `max_credits`), `kie_task_status`, `kie_wait_task`, `kie_upload`,
-`kie_ledger`. They go through the same spend guard and ledger as the CLI. The config is written
+Restart the app. It now has 10 tools: `kie_credits`, `kie_models`, `kie_generate_image`,
+`kie_generate_video`, `kie_speak` (requires `max_credits`), `kie_lipsync` (requires `max_credits`),
+`kie_task_status`, `kie_wait_task`, `kie_upload`, `kie_ledger`. They go through the same spend
+guard and ledger as the CLI. The config is written
 with the absolute Node path (GUI apps don't inherit your shell PATH); `kie mcp config` prints the
 snippet if you prefer to paste it. stdio only — there is deliberately no HTTP mode.
 
@@ -258,6 +272,21 @@ snippet if you prefer to paste it. stdio only — there is deliberately no HTTP 
 - You get a **file path**, never a KIE URL (they expire in 24 h).
 
 Tune the budget the agent can burn per day with `kie config set dailyBudget 300`.
+
+### Ad spot in one pipeline
+
+`kie image` → `kie video` → `kie speak` → `kie lipsync`: generate a hero image, animate it, write
+a voice-over, then lip-sync the clip to it — uploading each local file with `kie upload` first:
+
+```bash
+kie image nano-banana-2 --prompt "product hero shot" --out ./assets --name hero
+kie video seedance-2.5 --prompt "slow push-in" --image "$(kie upload ./assets/hero.png --json | jq -r .url)" \
+  --duration 5 --resolution 480p --max-credits 80 --out ./assets
+kie speak eleven-v2 --text "Introducing the product that changes everything." --voice Rachel \
+  --max-credits 15 --out ./assets --name vo
+kie lipsync volcengine-lipsync --video "$(kie upload ./assets/seedance-2-5.mp4 --json | jq -r .url)" \
+  --audio "$(kie upload ./assets/vo.mp3 --json | jq -r .url)" --max-credits 100 --out ./assets --name spot
+```
 
 ## Development
 
