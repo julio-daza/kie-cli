@@ -4,9 +4,17 @@ import { findModel, MODELS, parseSetFlags, type GenericInput } from "../src/cata
 
 const g = (over: Partial<GenericInput> = {}): GenericInput => ({ prompt: "a red bike", refs: [], extra: {}, ...over });
 
+/** Per-kind fixture so every model's build() runs without throwing during the smoke loop. */
+function fixtureFor(kind: string): GenericInput {
+  if (kind === "video") return g({ image: "https://x/img.png" });
+  if (kind === "audio") return g({ text: "hello there", voice: "Rachel" });
+  if (kind === "lipsync") return g({ image: "https://x/img.png", video: "https://x/vid.mp4", audio: "https://x/a.mp3", prompt: "talk" });
+  return g({ image: "https://x/img.png" });
+}
+
 test("every model builds a request without a callBackUrl", () => {
   for (const m of MODELS) {
-    const built = m.build(g({ image: m.kind === "video" ? "https://x/img.png" : undefined }));
+    const built = m.build(fixtureFor(m.kind));
     assert.equal("callBackUrl" in built.input, false, m.name);
     assert.ok(built.model.length > 0);
   }
@@ -130,6 +138,86 @@ test("veo3 uses its own family and camelCase fields", () => {
   assert.equal(b.family, "veo");
   assert.equal(b.input.model, "veo3_fast");
   assert.equal(b.input.aspectRatio, "9:16");
+});
+
+test("eleven-v2 and eleven-turbo map text/voice and fall back to --prompt", () => {
+  for (const name of ["eleven-v2", "eleven-turbo"]) {
+    const spec = findModel(name)!;
+    const b = spec.build(g({ text: "Hello", voice: "Rachel" }));
+    assert.deepEqual(b.input, { text: "Hello", voice: "Rachel" });
+    assert.equal(b.estimate, null);
+    // --prompt fallback for --text
+    const fallback = spec.build(g({ prompt: "Hi", voice: "Rachel" }));
+    assert.equal(fallback.input.text, "Hi");
+    // missing text
+    assert.throws(() => spec.build(g({ prompt: "", voice: "Rachel" })), /--text/);
+    // missing voice
+    assert.throws(() => spec.build(g({ text: "Hi" })), /--voice/);
+  }
+  assert.equal(findModel("eleven-v2")!.build(g({ text: "hi", voice: "Rachel" })).model, "elevenlabs/text-to-speech-multilingual-v2");
+  assert.equal(findModel("eleven-turbo")!.build(g({ text: "hi", voice: "Rachel" })).model, "elevenlabs/text-to-speech-turbo-2-5");
+});
+
+test("volcengine-lipsync sends video_url/audio_url/mode and rejects a bad --format", () => {
+  const spec = findModel("volcengine-lipsync")!;
+  const b = spec.build(g({ video: "https://x/v.mp4", audio: "https://x/a.mp3" }));
+  assert.equal(b.model, "volcengine/video-to-video-lip-sync");
+  assert.deepEqual(b.input, { video_url: "https://x/v.mp4", audio_url: "https://x/a.mp3", mode: "lite" });
+  assert.equal(b.estimate, null);
+  assert.throws(() => spec.build(g({ audio: "https://x/a.mp3" })), /--video/);
+  assert.throws(() => spec.build(g({ video: "https://x/v.mp4", audio: "https://x/a.mp3", format: "ultra" })), /--format must be one of/);
+});
+
+test("infinitalk requires image+audio+prompt and validates resolution oneOf", () => {
+  const spec = findModel("infinitalk")!;
+  const b = spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "talk" }));
+  assert.equal(b.model, "infinitalk/from-audio");
+  assert.deepEqual(b.input, { image_url: "https://x/p.png", audio_url: "https://x/a.mp3", prompt: "talk", resolution: "480p" });
+  assert.throws(() => spec.build(g({ audio: "https://x/a.mp3", prompt: "talk" })), /--image/);
+  assert.throws(() => spec.build(g({ image: "https://x/p.png", prompt: "talk" })), /--audio/);
+  assert.throws(() => spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "" })), /--prompt/);
+  assert.equal(spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "talk", resolution: "720p" })).input.resolution, "720p");
+  assert.throws(() => spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "talk", resolution: "4k" })), /--resolution must be one of/);
+});
+
+test("kling-avatar requires image+audio+prompt", () => {
+  const spec = findModel("kling-avatar")!;
+  const b = spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "talk" }));
+  assert.equal(b.model, "kling/ai-avatar-standard");
+  assert.deepEqual(b.input, { image_url: "https://x/p.png", audio_url: "https://x/a.mp3", prompt: "talk" });
+  assert.throws(() => spec.build(g({ audio: "https://x/a.mp3", prompt: "talk" })), /--image/);
+  assert.throws(() => spec.build(g({ image: "https://x/p.png", prompt: "talk" })), /--audio/);
+  assert.throws(() => spec.build(g({ image: "https://x/p.png", audio: "https://x/a.mp3", prompt: "" })), /--prompt/);
+});
+
+test("topaz-upscale coerces upscale_factor to a string and rejects bad values", () => {
+  const spec = findModel("topaz-upscale")!;
+  const withNumericSet = spec.build(g({ image: "https://x/u.png", extra: { upscale_factor: 2 } }));
+  assert.strictEqual(withNumericSet.input.upscale_factor, "2");
+  assert.equal(typeof withNumericSet.input.upscale_factor, "string");
+  const four = spec.build(g({ image: "https://x/u.png", extra: { upscale_factor: 4 } }));
+  assert.strictEqual(four.input.upscale_factor, "4");
+  const def = spec.build(g({ image: "https://x/u.png" }));
+  assert.strictEqual(def.input.upscale_factor, "2");
+  assert.throws(() => spec.build(g({ image: "https://x/u.png", extra: { upscale_factor: 3 } })), /upscale_factor/);
+  assert.throws(() => spec.build(g()), /--image/);
+});
+
+test("recraft-remove-bg sends field 'image' and never image_url", () => {
+  const spec = findModel("recraft-remove-bg")!;
+  const b = spec.build(g({ image: "https://x/u.png" }));
+  assert.equal(b.model, "recraft/remove-background");
+  assert.equal(b.input.image_url, undefined);
+  assert.deepEqual(b.input, { image: "https://x/u.png" });
+  assert.throws(() => spec.build(g()), /--image/);
+});
+
+test("all 7 new audio/lipsync/fx models have estimate: null", () => {
+  const names = ["eleven-v2", "eleven-turbo", "volcengine-lipsync", "infinitalk", "kling-avatar", "topaz-upscale", "recraft-remove-bg"];
+  for (const name of names) {
+    const spec = findModel(name)!;
+    assert.equal(spec.build(fixtureFor(spec.kind)).estimate, null, name);
+  }
 });
 
 test("--set merges raw fields but never callBackUrl", () => {

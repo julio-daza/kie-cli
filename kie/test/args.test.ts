@@ -25,3 +25,15 @@ test("num validates", () => {
   const a = parseArgs(["--duration", "abc"]);
   assert.throws(() => num(a.flags, "duration"), /must be a number/);
 });
+
+test("--text/--voice/--audio/--video parse as string flags without swallowing the next flag", () => {
+  const a = parseArgs(["speak", "eleven-v2", "--text", "Hello there", "--voice", "Rachel", "--max-credits", "5"]);
+  assert.equal(str(a.flags, "text"), "Hello there");
+  assert.equal(str(a.flags, "voice"), "Rachel");
+  assert.equal(str(a.flags, "max-credits"), "5");
+
+  const b = parseArgs(["lipsync", "infinitalk", "--audio", "a.mp3", "--video", "v.mp4", "--prompt", "talk"]);
+  assert.equal(str(b.flags, "audio"), "a.mp3");
+  assert.equal(str(b.flags, "video"), "v.mp4");
+  assert.equal(str(b.flags, "prompt"), "talk");
+});

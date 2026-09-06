@@ -33,6 +33,8 @@ export interface McpDeps {
 
 const IMAGE_MODELS = MODELS.filter((m) => m.kind === "image").map((m) => m.name);
 const VIDEO_MODELS = MODELS.filter((m) => m.kind === "video").map((m) => m.name);
+const AUDIO_MODELS = MODELS.filter((m) => m.kind === "audio").map((m) => m.name);
+const LIPSYNC_MODELS = MODELS.filter((m) => m.kind === "lipsync").map((m) => m.name);
 
 const TOOLS = [
   {
@@ -43,7 +45,7 @@ const TOOLS = [
   {
     name: "kie_models",
     description: "List the curated models with the flags each supports. Use the `model` alias in kie_generate_image / kie_generate_video.",
-    inputSchema: { type: "object", properties: { kind: { type: "string", enum: ["image", "video"] } }, additionalProperties: false },
+    inputSchema: { type: "object", properties: { kind: { type: "string", enum: ["image", "video", "audio", "lipsync"] } }, additionalProperties: false },
   },
   {
     name: "kie_generate_image",
@@ -66,6 +68,7 @@ const TOOLS = [
         name: { type: "string", description: "Base filename" },
         max_credits: { type: "number", description: "Most credits you accept to spend on this task" },
         dry_run: { type: "boolean", description: "Return the exact request without sending it" },
+        set: { type: "array", items: { type: "string" }, description: "Extra key=value fields merged into the request (never callBackUrl)." },
       },
       additionalProperties: false,
     },
@@ -95,6 +98,54 @@ const TOOLS = [
         name: { type: "string" },
         max_credits: { type: "number" },
         dry_run: { type: "boolean" },
+        set: { type: "array", items: { type: "string" }, description: "Extra key=value fields merged into the request (never callBackUrl)." },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "kie_speak",
+    description:
+      "Text-to-speech on KIE.ai, wait for it, download it and return the local file path. Models: " + AUDIO_MODELS.join(", ") +
+      ". None of these have a published price, so max_credits is REQUIRED — ask the user for the cap.",
+    inputSchema: {
+      type: "object",
+      required: ["model", "text", "max_credits"],
+      properties: {
+        model: { type: "string", enum: AUDIO_MODELS },
+        text: { type: "string", description: "Text to speak (<=5000 chars)" },
+        voice: { type: "string", description: "Voice id" },
+        format: { type: "string" },
+        out: { type: "string" },
+        name: { type: "string" },
+        max_credits: { type: "number" },
+        dry_run: { type: "boolean" },
+        set: { type: "array", items: { type: "string" }, description: "Extra key=value fields merged into the request (never callBackUrl)." },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "kie_lipsync",
+    description:
+      "Lip-sync a video or image to an audio track on KIE.ai, wait for it, download it and return the local file path. Models: " + LIPSYNC_MODELS.join(", ") +
+      ". None of these have a published price, so max_credits is REQUIRED — ask the user for the cap.",
+    inputSchema: {
+      type: "object",
+      required: ["model", "audio", "max_credits"],
+      properties: {
+        model: { type: "string", enum: LIPSYNC_MODELS },
+        image: { type: "string", description: "Source image URL (infinitalk, kling-avatar)" },
+        video: { type: "string", description: "Source video URL (volcengine-lipsync)" },
+        audio: { type: "string", description: "Audio track URL" },
+        prompt: { type: "string", description: "Required by infinitalk / kling-avatar" },
+        resolution: { type: "string", description: "infinitalk: 480p|720p" },
+        format: { type: "string", description: "volcengine-lipsync: lite|basic" },
+        out: { type: "string" },
+        name: { type: "string" },
+        max_credits: { type: "number" },
+        dry_run: { type: "boolean" },
+        set: { type: "array", items: { type: "string" }, description: "Extra key=value fields merged into the request (never callBackUrl)." },
       },
       additionalProperties: false,
     },
@@ -198,6 +249,11 @@ const GEN_MAP = {
   name: "name",
   max_credits: "max-credits",
   dry_run: "dry-run",
+  text: "text",
+  voice: "voice",
+  audio: "audio",
+  video: "video",
+  set: "set",
 };
 const GEN_BOOLS = ["sound", "fast", "dry_run"];
 
@@ -226,6 +282,12 @@ export function createMcpServer(deps: McpDeps) {
         break;
       case "kie_generate_video":
         code = await runGenerate("video", parseArgs(argv(a, [String(a.model)], GEN_MAP, GEN_BOOLS), GENERATE_BOOLEANS), deps3);
+        break;
+      case "kie_speak":
+        code = await runGenerate("audio", parseArgs(argv(a, [String(a.model)], GEN_MAP, GEN_BOOLS), GENERATE_BOOLEANS), deps3);
+        break;
+      case "kie_lipsync":
+        code = await runGenerate("lipsync", parseArgs(argv(a, [String(a.model)], GEN_MAP, GEN_BOOLS), GENERATE_BOOLEANS), deps3);
         break;
       case "kie_task_status":
         code = await runStatus(parseArgs(argv(a, [String(a.task_id)], {})), deps3);
