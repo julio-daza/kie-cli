@@ -3,6 +3,38 @@
 All notable changes to `kie` are documented here. Versions follow semver; the JSON output
 shape and flag names are part of the public contract.
 
+## [0.8.0] — 2026-09-06
+
+Adds voice-over, lip-sync and two image-fx models: `kie speak`, `kie lipsync`, and `topaz-upscale`/
+`recraft-remove-bg` under the existing `kie image`.
+
+### Added
+- **`kie speak <model>`** — new command + `Kind: "audio"`. Two ElevenLabs TTS models:
+  `eleven-v2` (`elevenlabs/text-to-speech-multilingual-v2`) and `eleven-turbo`
+  (`elevenlabs/text-to-speech-turbo-2-5`), both driven by `--text`/`--voice` (falls back to
+  `--prompt` for text). Results download as `.mp3`/`.wav`.
+- **`kie lipsync <model>`** — new command + `Kind: "lipsync"`. Three models:
+  `volcengine-lipsync` (`volcengine/video-to-video-lip-sync`, `--video`+`--audio`, `--format
+  lite|basic`), `infinitalk` (`infinitalk/from-audio`, `--image`+`--audio`+`--prompt`,
+  `--resolution 480p|720p`), and `kling-avatar` (`kling/ai-avatar-standard`, same shape as
+  `infinitalk` without the resolution flag).
+- **`topaz-upscale`** and **`recraft-remove-bg`** — two new `kind: "image"` catalog entries,
+  callable via `kie image topaz-upscale --image <url> --resolution 1|2|4` and
+  `kie image recraft-remove-bg --image <url>`.
+- New generic flags: `--text`, `--voice`, `--audio`, `--video`.
+- **MCP**: `kie_speak` and `kie_lipsync` tools (both require `max_credits`), appended after
+  `kie_generate_video`; `kie_models` tool's `kind` enum widened to `image|video|audio|lipsync`.
+  The server now exposes 10 tools.
+- None of the 7 new models has a published per-model price — every call requires
+  `--max-credits`, same UX as `kling-3.0`/`veo3`/`seedream-v4` today.
+
+### Fixed
+- The "wrong kind" error from `kie image <model>` / `kie video <model>` (e.g. running an audio
+  model through the wrong command) used to say `Use \`kie audio eleven-v2 ...\`` — `kie audio`
+  isn't a real command. It now maps each `Kind` to its actual verb and says
+  `Use \`kie speak eleven-v2 ...\`` / `Use \`kie lipsync infinitalk ...\``.
+- Fixed: `kie --version` printed the help screen instead of the version (`kie version` already worked).
+
 ## [0.7.0] — 2026-08-30
 
 Tracks KIE's Aug 10–30 2026 product update: four new models and a price change on MiniMax H3.

@@ -13,7 +13,7 @@ export interface LedgerEntry {
   event: "created" | "completed" | "failed";
   taskId: string;
   model: string;
-  kind: "image" | "video" | "raw";
+  kind: "image" | "video" | "audio" | "lipsync" | "raw";
   estimate: number | null;
   credits: number | null; // real credits consumed (only on completed/failed)
   files?: string[];

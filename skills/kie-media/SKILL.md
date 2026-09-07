@@ -1,16 +1,20 @@
 ---
 name: kie-media
 description: >
-  Generate images and videos with the `kie` CLI (KIE.ai: Nano Banana 2, Seedream, Grok Imagine 2,
-  Kling 3.0, Kling O3, Seedance 2.5, MiniMax H3, Wan 3.0, Gemini Omni 1.1, Veo 3) under strict
-  spend limits, and hand back local files.
+  Generate images, videos, voice-overs and lip-synced talking video with the `kie` CLI (KIE.ai:
+  Nano Banana 2, Seedream, Grok Imagine 2, Kling 3.0, Kling O3, Seedance 2.5, MiniMax H3, Wan 3.0,
+  Gemini Omni 1.1, Veo 3, ElevenLabs TTS, Volcengine/InfiniTalk/Kling lip-sync, Topaz upscale,
+  Recraft background removal) under strict spend limits, and hand back local files.
   Trigger: user asks to generate, create, render or edit an image, illustration, logo draft,
-  mockup, poster, video clip, animation, or b-roll; or mentions KIE, Kling, Veo, Seedance, Wan,
-  Grok Imagine, Gemini Omni, Nano Banana, "genera una imagen", "hazme un video".
+  mockup, poster, video clip, animation, or b-roll; asks for a voice-over, text-to-speech, TTS,
+  narration, lipsync, lip sync, dubbing, upscale, or background removal; or mentions KIE, Kling,
+  Veo, Seedance, Wan, Grok Imagine, Gemini Omni, Nano Banana, ElevenLabs, InfiniTalk, Volcengine,
+  Topaz, Recraft, "genera una imagen", "hazme un video", "ponle voz", "narra esto", "dobla este
+  video".
 license: MIT
 metadata:
   author: juliodaza
-  version: "1.5"
+  version: "1.6"
 ---
 
 ## When to Use
@@ -20,6 +24,9 @@ Works in Claude Code (`/kie-media`), Codex (`$kie-media`), Cursor (`/kie-media` 
 - The user wants a generated image or video (not a chart, not a screenshot, not an SVG icon you can hand-write).
 - An asset is needed for a landing page, blog post, store listing, social post, demo data, or storyboard.
 - The user asks to iterate on a previous generation (edit with a reference image).
+- The user wants a voice-over / narration / TTS clip (`kie speak`), or wants a talking-head / lip-synced
+  video from a still photo + audio, or from a video + a new audio track (`kie lipsync`).
+- The user wants to upscale an image or remove its background (`kie image topaz-upscale` / `kie image recraft-remove-bg`).
 
 Do **not** use it for: diagrams (use SVG/mermaid), UI mockups you can code, or anything the
 user did not ask to spend money on. Every call costs credits.
@@ -30,6 +37,7 @@ user did not ask to spend money on. Every call costs credits.
 |---|---|
 | **Check budget first**: `kie credits` before the first generation of a session. | Spend is capped per day; know what is left before promising results. |
 | **Always pass `--max-credits`** on video and on any model without an estimate. Start low (image ≤ 20, video ≤ 80) and only raise it if the user explicitly agrees. | Exit code 3 = blocked, nothing was sent. Never retry a blocked call with a bigger number on your own. |
+| **`kie speak` and `kie lipsync` models have NO published price at all** — `--max-credits` is not optional, it is required (the call is blocked without it). Start small: 5–20 for speech, 50–150 for lipsync/avatar. Run `kie credits` before AND after to see the real `creditsConsumed`. | These are Market models billed per-call with no public rate card; the guard cannot estimate cost up front. |
 | **Use `--dry-run` when unsure of the request shape** (new model, `--set` fields). | Prints the exact payload; costs nothing. |
 | **Hand back the local file path from the JSON `files` array, never `resultUrls`.** | Result URLs expire in ~24 h. |
 | **Prefer images over video for drafts.** Generate 1 image, show it, then iterate. Only move to video once the user confirms the look. | Video costs 5–20× more per run. |
@@ -54,6 +62,11 @@ user did not ask to spend money on. Every call costs credits.
 | Text/refs → video, fixed 4/6/8/10 s | `kie video gemini-omni-1.1` | Flat price: 63/84/105/126 cr (≤1080p), 147/168/189/210 at 4k. |
 | Image → video, frames, long (≤30 s) | `kie video seedance-2.5 --image <url>` | 480p = 28 cr/s, 720p = 63, 1080p = 114. `--resolution 480p` for drafts. |
 | Highest quality cinematic | `kie video veo3` (`--fast` for cheaper) | Own endpoint; 16:9 for 1080p. No published price → `--max-credits`. |
+| Voice-over / narration / TTS | `kie speak eleven-v2 --text "…" --voice Rachel` | `eleven-turbo` = faster/cheaper turbo variant, same flags. No published price → `--max-credits` (start 5–20). |
+| Lip-sync an existing video with new audio | `kie lipsync volcengine-lipsync --video <url> --audio <url>` | `--format lite\|basic`. Video ≤500MB 360p–1080p; audio ≤10MB. No published price → `--max-credits` (start 50–150). |
+| Talking head from a still photo + audio | `kie lipsync infinitalk --image <url> --audio <url> --prompt "…"` | `--resolution 480p\|720p`. Alt: `kie lipsync kling-avatar` (same shape, no resolution flag). No published price → `--max-credits`. |
+| Upscale an image | `kie image topaz-upscale --image <url> --resolution 2` | `--resolution` doubles as the upscale factor: `1`\|`2`\|`4`. No published price → `--max-credits`. |
+| Remove an image's background | `kie image recraft-remove-bg --image <url>` | Single input, PNG/JPG/WEBP ≤5MB. No published price → `--max-credits`. |
 
 Prices are KIE list prices (Aug 30 2026 update, US$0.005/credit) and are pre-flight estimates only —
 the ledger settles on the real `creditsConsumed`. Video is billed per second: a 5 s 1080p Seedance clip
@@ -80,6 +93,30 @@ kie video kling-3.0 --prompt "the barista slides the cup across the counter, sof
   --image "$(kie upload ./assets/hero-barista-v2.png --json | jq -r .url)" --duration 5 --max-credits 80 --out ./assets --json
 ```
 
+## Recipe: End-to-End Ad Spot (image → video → speak → lipsync)
+
+```bash
+# 1. hero image
+kie image nano-banana-2 --prompt "product hero shot on a white studio backdrop" --out ./assets --name hero --json
+
+# 2. animate it into a short clip
+kie video seedance-2.5 --prompt "slow push-in on the product, soft studio lighting" \
+  --image "$(kie upload ./assets/hero.png --json | jq -r .url)" --duration 5 --resolution 480p --max-credits 80 --out ./assets --json
+
+# 3. voice-over script (small ceiling — no published price)
+kie speak eleven-v2 --text "Introducing the product that changes everything." --voice Rachel \
+  --max-credits 15 --out ./assets --name vo --json
+
+# 4. lip-sync the clip to the new voice-over (small ceiling — no published price)
+kie lipsync volcengine-lipsync \
+  --video "$(kie upload ./assets/seedance-2-5.mp4 --json | jq -r .url)" \
+  --audio "$(kie upload ./assets/vo.mp3 --json | jq -r .url)" \
+  --max-credits 100 --out ./assets --name spot --json
+```
+
+Every local input (the animated clip, the generated voice-over) must go through `kie upload` first —
+models take URLs, not local paths. Check `kie credits` before step 3 and after step 4 to confirm real spend.
+
 Handling outcomes:
 
 ```text
@@ -93,9 +130,11 @@ exit 5 → API/auth issue; suggest `kie key check`
 ## Commands
 
 ```bash
-kie models --kind image|video            # catalog with supported flags
+kie models --kind image|video|audio|lipsync   # catalog with supported flags
 kie image <model> --prompt "…" [--ref url]... [--aspect 16:9] [--resolution 1K|2K|4K] [--out dir] [--name base]
 kie video <model> --prompt "…" [--image url] [--end-image url] [--ref url]... [--duration s] [--resolution …] [--sound] [--fast] --max-credits N
+kie speak <model> --text "…" --voice <name> --max-credits N       # kie speak eleven-v2 | eleven-turbo
+kie lipsync <model> [--image url|--video url] --audio url [--prompt "…"] --max-credits N   # volcengine-lipsync | infinitalk | kling-avatar
 kie run <model-id> --input '{…}' --max-credits N   # any Market model; verify schema on docs.kie.ai first
 kie upload <file>                        # local file → temporary URL
 kie status <taskId> | kie wait <taskId> --out dir

@@ -8,7 +8,7 @@
  * returned by the API. Where an estimate is missing (unknown price, or a
  * duration the model decides itself) the caller must pass --max-credits.
  */
-export type Kind = "image" | "video";
+export type Kind = "image" | "video" | "audio" | "lipsync";
 export type Family = "market" | "veo";
 
 export interface GenericInput {
@@ -25,6 +25,14 @@ export interface GenericInput {
   sound?: boolean;
   fast?: boolean;
   format?: string;
+  /** Text to speak (TTS). Falls back to --prompt when absent. */
+  text?: string;
+  /** Voice id/name (TTS). */
+  voice?: string;
+  /** Driving audio (lipsync). */
+  audio?: string;
+  /** Driving/source video (lipsync). */
+  video?: string;
   /** Raw extra fields from --set key=value, merged last. */
   extra: Record<string, unknown>;
 }
@@ -54,6 +62,20 @@ const clean = (o: Record<string, unknown>): Record<string, unknown> =>
 function need(value: string | undefined, what: string): string {
   if (!value) throw new Error(`Missing required ${what}.`);
   return value;
+}
+
+/** Shared TTS builder for ElevenLabs models: --text (falls back to --prompt) + --voice. */
+function ttsBuild(model: string): (g: GenericInput) => BuiltRequest {
+  return (g) => ({
+    model,
+    family: "market",
+    input: clean({
+      text: need(g.text ?? g.prompt, "--text"),
+      voice: need(g.voice, "--voice"),
+      ...g.extra,
+    }),
+    estimate: null,
+  });
 }
 
 /** Matches case-insensitively and returns the canonical spelling KIE expects (e.g. "2k" → "4K"). */
@@ -405,6 +427,124 @@ export const MODELS: ModelSpec[] = [
         estimate: null,
       };
     },
+  },
+  // ---------------------------------------------------------------- audio (TTS)
+  {
+    name: "eleven-v2",
+    kind: "audio",
+    label: "ElevenLabs Text to Speech Multilingual v2",
+    docs: "https://docs.kie.ai/market/elevenlabs/text-to-speech-multilingual-v2",
+    supports: ["text", "voice"],
+    notes: "Price not published; pass --max-credits.",
+    build: ttsBuild("elevenlabs/text-to-speech-multilingual-v2"),
+  },
+  {
+    name: "eleven-turbo",
+    kind: "audio",
+    label: "ElevenLabs Text to Speech Turbo 2.5",
+    docs: "https://docs.kie.ai/market/elevenlabs/text-to-speech-turbo-2-5",
+    supports: ["text", "voice"],
+    notes: "Price not published; pass --max-credits.",
+    build: ttsBuild("elevenlabs/text-to-speech-turbo-2-5"),
+  },
+  // ---------------------------------------------------------------- lipsync
+  {
+    name: "volcengine-lipsync",
+    kind: "lipsync",
+    label: "Volcengine Video-to-Video Lip Sync",
+    docs: "https://docs.kie.ai/market/volcengine/video-to-video-lip-sync",
+    supports: ["video", "audio", "format (lite|basic)"],
+    notes: "Price not published; pass --max-credits.",
+    build: (g) => ({
+      model: "volcengine/video-to-video-lip-sync",
+      family: "market",
+      input: clean({
+        video_url: need(g.video, "--video"),
+        audio_url: need(g.audio, "--audio"),
+        mode: oneOf(g.format, ["lite", "basic"], "format", "lite"),
+        ...g.extra,
+      }),
+      estimate: null,
+    }),
+  },
+  {
+    name: "infinitalk",
+    kind: "lipsync",
+    label: "InfiniTalk From Audio — image + audio-driven talking video",
+    docs: "https://docs.kie.ai/market/infinitalk/from-audio",
+    supports: ["image", "audio", "prompt", "resolution (480p|720p)"],
+    notes: "Price not published; pass --max-credits.",
+    build: (g) => ({
+      model: "infinitalk/from-audio",
+      family: "market",
+      input: clean({
+        image_url: need(g.image, "--image"),
+        audio_url: need(g.audio, "--audio"),
+        prompt: need(g.prompt, "--prompt"),
+        resolution: oneOf(g.resolution, ["480p", "720p"], "resolution", "480p"),
+        ...g.extra,
+      }),
+      estimate: null,
+    }),
+  },
+  {
+    name: "kling-avatar",
+    kind: "lipsync",
+    label: "Kling AI Avatar Standard — image + audio-driven talking video",
+    docs: "https://docs.kie.ai/market/kling/ai-avatar-standard",
+    supports: ["image", "audio", "prompt"],
+    notes: "Price not published; pass --max-credits.",
+    build: (g) => ({
+      model: "kling/ai-avatar-standard",
+      family: "market",
+      input: clean({
+        image_url: need(g.image, "--image"),
+        audio_url: need(g.audio, "--audio"),
+        prompt: need(g.prompt, "--prompt"),
+        ...g.extra,
+      }),
+      estimate: null,
+    }),
+  },
+  // ---------------------------------------------------------------- image fx
+  {
+    name: "topaz-upscale",
+    kind: "image",
+    label: "Topaz Image Upscale",
+    docs: "https://docs.kie.ai/market/topaz/image-upscale",
+    supports: ["image", "upscale_factor via --set or --resolution (1|2|4)"],
+    notes: "Price not published; pass --max-credits.",
+    build: (g) => {
+      const raw = g.resolution ?? g.extra.upscale_factor ?? "2";
+      const { upscale_factor: _drop, ...extra } = g.extra;
+      return {
+        model: "topaz/image-upscale",
+        family: "market",
+        input: clean({
+          image_url: need(g.image, "--image"),
+          upscale_factor: oneOf(String(raw), ["1", "2", "4"], "upscale_factor", "2"),
+          ...extra,
+        }),
+        estimate: null,
+      };
+    },
+  },
+  {
+    name: "recraft-remove-bg",
+    kind: "image",
+    label: "Recraft Remove Background",
+    docs: "https://docs.kie.ai/market/recraft/remove-background",
+    supports: ["image"],
+    notes: "Price not published; pass --max-credits.",
+    build: (g) => ({
+      model: "recraft/remove-background",
+      family: "market",
+      input: clean({
+        image: need(g.image, "--image"),
+        ...g.extra,
+      }),
+      estimate: null,
+    }),
   },
 ];
 

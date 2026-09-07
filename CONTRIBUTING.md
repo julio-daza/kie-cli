@@ -29,6 +29,9 @@ hand it a paid API key.
 
 ## Workflow
 
+Branches flow one way: `feature/*` → `develop` → `staging` → `main`. `main` no longer
+accepts direct pushes — every change reaches it through this chain.
+
 ```bash
 cd kie
 npm install
@@ -39,10 +42,30 @@ npm run typecheck
 Commits: short imperative subject, body explaining *why*. Bump `VERSION` in `src/index.ts`
 and `package.json` together, and add a line to `CHANGELOG.md`.
 
+1. **Feature branch → PR to `develop`.** `ci.yml` runs typecheck + tests on Node 20/22 and
+   checks the zero-runtime-deps invariant. An `enforce-flow` job blocks PRs opened directly
+   against `staging` (must come from `develop`) or `main` (must come from `staging`) — any
+   branch can target `develop`.
+2. **PR `develop` → `staging`.** `full-battery.yml` runs the full test battery on Node
+   20/22/24, plus packaging checks: `npm pack --dry-run` contents, the built `skills/`
+   output matches the source skill, `VERSION` in `src/index.ts` matches `package.json`,
+   `CHANGELOG.md` has a matching `## [x.y.z]` section, a `--version` smoke test, and
+   `npm audit`.
+3. **PR `staging` → `main`.** Once merged, `release.yml` runs on `push` to `main`. It reads
+   the version from `package.json`; if that version has no `vX.Y.Z` tag and isn't already on
+   npm, it publishes `@uxdata-co/kie` to npm (trusted publishing / OIDC, with provenance),
+   then creates and pushes the `vX.Y.Z` tag and a GitHub release with the CHANGELOG section
+   as notes. If the version was already released, the workflow skips publishing/tagging —
+   this makes `staging` → `main` promotions safe to merge even when no version bump is needed.
+
 ## Releasing (maintainers)
 
-1. Bump `version` in `kie/package.json` and `VERSION` in `kie/src/index.ts`; add a `CHANGELOG.md` entry.
-2. Commit, then `git tag vX.Y.Z && git push origin main --tags`.
-3. `.github/workflows/release.yml` runs the tests and publishes `@uxdata-co/kie` to npm with
-   provenance via trusted publishing (no token stored anywhere). The GitHub release is created
-   automatically with the CHANGELOG section as notes.
+Releases are no longer triggered by pushing a tag by hand — tags and GitHub releases are
+created by CI.
+
+1. On (or before) the `develop` → `staging` promotion, bump `version` in `kie/package.json`
+   and `VERSION` in `kie/src/index.ts` together, and add a `CHANGELOG.md` entry.
+2. Merge `develop` → `staging` (full battery must pass), then merge `staging` → `main`.
+3. `.github/workflows/release.yml` detects the new version on `main`, publishes
+   `@uxdata-co/kie` to npm with provenance via trusted publishing (no token stored anywhere),
+   and creates the `vX.Y.Z` tag and GitHub release automatically.
