@@ -9,6 +9,14 @@ import { waitForTask } from "./tasks.js";
 
 export const GENERATE_BOOLEANS = new Set(["sound", "fast", "dry-run", "wait", "no-wait", "json", "pretty", "quiet"]);
 
+/** Maps a model's `Kind` to the CLI verb that actually invokes it (they diverge for audio/lipsync). */
+const VERB_BY_KIND: Record<Kind, string> = {
+  image: "image",
+  video: "video",
+  audio: "speak",
+  lipsync: "lipsync",
+};
+
 export interface GenerateDeps {
   client: KieClient;
   config: KieConfig;
@@ -28,6 +36,10 @@ function genericFromArgs(args: ParsedArgs): GenericInput {
     sound: f.sound === undefined ? undefined : bool(f, "sound"),
     fast: f.fast === undefined ? undefined : bool(f, "fast"),
     format: str(f, "format"),
+    text: str(f, "text"),
+    voice: str(f, "voice"),
+    audio: str(f, "audio"),
+    video: str(f, "video"),
     extra: parseSetFlags(list(f, "set")),
   };
 }
@@ -45,7 +57,7 @@ export async function runGenerate(kind: Kind, args: ParsedArgs, deps: GenerateDe
     return 2;
   }
   if (spec.kind !== kind) {
-    deps.output.error(`"${name}" is a ${spec.kind} model. Use \`kie ${spec.kind} ${name} ...\`.`);
+    deps.output.error(`"${name}" is a ${spec.kind} model. Use \`kie ${VERB_BY_KIND[spec.kind]} ${name} ...\`.`);
     return 2;
   }
   const built = spec.build(genericFromArgs(args));

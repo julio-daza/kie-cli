@@ -82,8 +82,55 @@ test("tools/list exposes the kie tools with JSON schemas; video requires max_cre
   const { s } = server();
   const r = (await s.handle(req(1, "tools/list")))!.result as { tools: { name: string; inputSchema: { required?: string[] } }[] };
   const names = r.tools.map((t) => t.name);
-  assert.deepEqual(names, ["kie_credits", "kie_models", "kie_generate_image", "kie_generate_video", "kie_task_status", "kie_wait_task", "kie_upload", "kie_ledger"]);
+  assert.deepEqual(names, ["kie_credits", "kie_models", "kie_generate_image", "kie_generate_video", "kie_speak", "kie_lipsync", "kie_task_status", "kie_wait_task", "kie_upload", "kie_ledger"]);
   assert.ok(r.tools.find((t) => t.name === "kie_generate_video")!.inputSchema.required!.includes("max_credits"));
+  assert.ok(r.tools.find((t) => t.name === "kie_speak")!.inputSchema.required!.includes("max_credits"));
+  assert.ok(r.tools.find((t) => t.name === "kie_lipsync")!.inputSchema.required!.includes("max_credits"));
+});
+
+test("kie_speak --dry-run returns the exact request without sending", async () => {
+  const { s, f } = server();
+  const r = (await s.handle(req(1, "tools/call", { name: "kie_speak", arguments: { model: "eleven-v2", text: "hola mundo", voice: "Rachel", max_credits: 5, dry_run: true } })))!.result as { content: { text?: string }[] };
+  const text = JSON.parse(r.content[0]!.text!);
+  assert.equal(text.dryRun, true);
+  assert.deepEqual(text.request.input, { text: "hola mundo", voice: "Rachel" });
+  assert.equal(f.urls.length, 0);
+});
+
+test("kie_lipsync runs the full flow and returns the downloaded file", async () => {
+  const { s, f } = server();
+  const out = join(dir, "media");
+  const r = (await s.handle(req(1, "tools/call", { name: "kie_lipsync", arguments: { model: "infinitalk", image: "https://x/a.png", audio: "https://x/a.mp3", prompt: "talk", max_credits: 5, out, name: "talk" } })))!.result as {
+    content: { type: string; text?: string }[];
+    isError?: boolean;
+  };
+  assert.equal(r.isError, undefined);
+  const text = JSON.parse(r.content[0]!.text!);
+  assert.equal(text.state, "success");
+  for (const u of f.urls) assert.match(u, /^https:\/\/(api\.kie\.ai|cdn\.kie)\//);
+});
+
+test("kie_speak rejects a callBackUrl passed via `set` and never reaches fetch", async () => {
+  const { s, f } = server();
+  const r = (await s.handle(
+    req(1, "tools/call", { name: "kie_speak", arguments: { model: "eleven-v2", text: "hola", voice: "Rachel", max_credits: 5, set: ["callBackUrl=https://evil.example/hook"] } }),
+  ))!.result as { content: { text?: string }[]; isError?: boolean };
+  assert.equal(r.isError, true);
+  assert.match(r.content.map((c) => c.text).join("\n"), /callBackUrl is not allowed/);
+  assert.equal(f.urls.length, 0);
+});
+
+test("kie_lipsync rejects a callBackUrl passed via `set` and never reaches fetch", async () => {
+  const { s, f } = server();
+  const r = (await s.handle(
+    req(1, "tools/call", {
+      name: "kie_lipsync",
+      arguments: { model: "infinitalk", image: "https://x/a.png", audio: "https://x/a.mp3", prompt: "talk", max_credits: 5, set: ["callBackUrl=https://evil.example/hook"] },
+    }),
+  ))!.result as { content: { text?: string }[]; isError?: boolean };
+  assert.equal(r.isError, true);
+  assert.match(r.content.map((c) => c.text).join("\n"), /callBackUrl is not allowed/);
+  assert.equal(f.urls.length, 0);
 });
 
 test("unknown method and unknown tool are JSON-RPC errors", async () => {

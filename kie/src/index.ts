@@ -11,14 +11,16 @@ import { redact, resolveKey } from "./keystore.js";
 import { out, type Mode } from "./output.js";
 import { banner, makeStyle, colorsEnabled } from "./ui.js";
 
-const VERSION = "0.6.0";
+const VERSION = "0.8.0";
 
 const HELP = `Usage:
   kie key set|check|delete                     Store the API key (macOS Keychain / 0600 file)
   kie credits                                  Balance + today's spend vs daily budget
-  kie models [--kind image|video]              Curated catalog (JSON)
+  kie models [--kind image|video|audio|lipsync]   Curated catalog (JSON)
   kie image <model> --prompt "..." [opts]      Generate an image, wait, download
   kie video <model> --prompt "..." [opts]      Generate a video, wait, download
+  kie speak <model> --text "..." --voice v [opts]      Text-to-speech, wait, download
+  kie lipsync <model> [opts]                   Lip-sync a video/image to audio, wait, download
   kie run <model-id> --input '{json}' --max-credits N   Any Market model (escape hatch)
   kie status <taskId>                          One poll, no download
   kie wait <taskId> [--out dir]                Poll until done, download, settle ledger
@@ -34,8 +36,10 @@ Generation options:
   --prompt <text>        --ref <url> (repeatable)   --image <url>   --end-image <url>
   --aspect 16:9          --resolution <model-specific, see \`kie models\`>  --duration <s>  --sound  --fast
   --format png|jpg       --set key=value (repeatable, raw model field)
+  --text <text>          --voice <id>    --audio <url>   --video <url>   (kie speak / kie lipsync)
   --out <dir>            --name <base>   --no-wait   --timeout <s>   --poll <s>   --no-download
   --max-credits <n>      Accept spending up to n credits on this task (required when no estimate)
+  Note: speak/lipsync models have no published price, so --max-credits is always required.
   --dry-run              Print the exact request, send nothing
   --quiet                Suppress progress on stderr
   --json                 Force machine output (default when stdout is not a terminal)
@@ -50,14 +54,14 @@ async function main(argv: string[]): Promise<number> {
   const command = args.positionals.shift();
   const color = args.flags["no-color"] || args.flags.color === false ? false : undefined;
   const mode: Mode | undefined = args.flags.json ? "json" : args.flags.pretty ? "pretty" : undefined;
+  if (command === "version" || args.flags.version) {
+    process.stdout.write(`kie ${VERSION}\n`);
+    return 0;
+  }
   if (!command || command === "help" || args.flags.help) {
     const pretty = mode === "pretty" || (mode !== "json" && process.stdout.isTTY);
     if (pretty) process.stdout.write("\n" + banner(makeStyle(color ?? colorsEnabled(process.stdout)), VERSION) + "\n");
     process.stdout.write(HELP);
-    return 0;
-  }
-  if (command === "version" || args.flags.version) {
-    process.stdout.write(`kie ${VERSION}\n`);
     return 0;
   }
 
@@ -90,6 +94,10 @@ async function main(argv: string[]): Promise<number> {
       return runGenerate("image", args, deps);
     case "video":
       return runGenerate("video", args, deps);
+    case "speak":
+      return runGenerate("audio", args, deps);
+    case "lipsync":
+      return runGenerate("lipsync", args, deps);
     case "run":
       return runRaw(args, deps);
     case "status":
