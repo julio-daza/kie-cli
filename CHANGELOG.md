@@ -33,6 +33,7 @@ Adds voice-over, lip-sync and two image-fx models: `kie speak`, `kie lipsync`, a
   model through the wrong command) used to say `Use \`kie audio eleven-v2 ...\`` — `kie audio`
   isn't a real command. It now maps each `Kind` to its actual verb and says
   `Use \`kie speak eleven-v2 ...\`` / `Use \`kie lipsync infinitalk ...\``.
+- Fixed: `kie --version` printed the help screen instead of the version (`kie version` already worked).
 
 ## [0.7.0] — 2026-08-30
 
