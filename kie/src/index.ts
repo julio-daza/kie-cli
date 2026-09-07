@@ -54,14 +54,14 @@ async function main(argv: string[]): Promise<number> {
   const command = args.positionals.shift();
   const color = args.flags["no-color"] || args.flags.color === false ? false : undefined;
   const mode: Mode | undefined = args.flags.json ? "json" : args.flags.pretty ? "pretty" : undefined;
+  if (command === "version" || args.flags.version) {
+    process.stdout.write(`kie ${VERSION}\n`);
+    return 0;
+  }
   if (!command || command === "help" || args.flags.help) {
     const pretty = mode === "pretty" || (mode !== "json" && process.stdout.isTTY);
     if (pretty) process.stdout.write("\n" + banner(makeStyle(color ?? colorsEnabled(process.stdout)), VERSION) + "\n");
     process.stdout.write(HELP);
-    return 0;
-  }
-  if (command === "version" || args.flags.version) {
-    process.stdout.write(`kie ${VERSION}\n`);
     return 0;
   }
 
